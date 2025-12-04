@@ -11,13 +11,13 @@ void MotorManager::spinMotor(){
     if(currentTime - lastStepToggleTime_ >= currentStepInterval_){
         stepState_ = !stepState_;
 
-        gpio_put(constants::pins::motor::Step, stepState_);
+    gpio_put(constants::pins::MotorStep, stepState_);
 
         lastStepToggleTime_ = currentTime;
 
-        // if(!stepState_ && currentStepInterval_ > constants::system::motor::TargetStepInterval){
+        // if(!stepState_ && currentStepInterval_ > constants::motor::TargetStepInterval){
         if(!stepState_){
-            units::Us targetInterval{constants::system::motor::MaxStepInterval};
+            units::Us targetInterval{constants::motor::MaxStepInterval};
 
             if(targetStepRate_ > 0){
                 units::MsRate toggleRate{static_cast<units::MsRate>(targetStepRate_ * 2)};
@@ -26,13 +26,13 @@ void MotorManager::spinMotor(){
 
                 if(computedInterval == 0) computedInterval = 1;
 
-                targetInterval = std::min(computedInterval, constants::system::motor::MaxStepInterval);
+                targetInterval = std::min(computedInterval, constants::motor::MaxStepInterval);
             }
 
             if(currentStepInterval_ > targetInterval){
-                currentStepInterval_ = std::max(currentStepInterval_ - constants::system::motor::AccelerationStep, targetInterval);
+                currentStepInterval_ = std::max(currentStepInterval_ - constants::motor::AccelerationStep, targetInterval);
             }else if(currentStepInterval_ < targetInterval){
-                currentStepInterval_ = std::min(currentStepInterval_ + constants::system::motor::AccelerationStep, targetInterval);
+                currentStepInterval_ = std::min(currentStepInterval_ + constants::motor::AccelerationStep, targetInterval);
             }
         }
     }

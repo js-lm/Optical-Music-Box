@@ -2,40 +2,54 @@
 
 #include <cstddef>
 
-#include "units.hpp"
+#include "aliases.hpp"
 
 namespace constants{
 
     namespace pins{
+        constexpr physical::Pin MotorDirection {15};
+        constexpr physical::Pin MotorStep      {14};
+        constexpr physical::Pin MotorEnable    {13};
 
-        namespace motor{
+        constexpr physical::Pin MuxData  {4};
+        constexpr physical::Pin MuxClock {5};
 
-            constexpr int Direction {15};
-            constexpr int Step      {14};
-            constexpr int Enable    {13};
+        constexpr physical::Pin MidiTransmit {0};
+        constexpr physical::Pin MidiReceive  {1};
 
-        } // namespace motor
-
-        namespace color_sensors{
-
-        } // namespace sensors
-
+        constexpr physical::Pin IrAnalogOut {26};
     } // namespace pins
+
+    namespace adc{
+        constexpr physical::Channel IrInputChannel{0};
+    } // namespace adc
+
+    namespace i2c_address{
+        constexpr physical::I2CAddress MuxFront  {0x70};
+        constexpr physical::I2CAddress MuxBack   {0x71};
+        constexpr physical::I2CAddress ColorSensor{0x29};
+    } // namespace i2c_address
+
+    namespace color_sensor{
+        constexpr physical::Register CommandBit{0x80};
+
+        constexpr physical::Register Enable           {0x00 | CommandBit};
+        constexpr physical::Register IntegrationTime  {0x01 | CommandBit};
+        constexpr physical::Register Control          {0x0f | CommandBit};
+        constexpr physical::Register Id               {0x12 | CommandBit};
+        constexpr physical::Register ClearDataLow     {0x14 | CommandBit};
+    } // namespace color_sensor
+
+
+    namespace motor{
+        constexpr bool ForwardDirection{1};
+        constexpr units::Us MaxStepInterval{800};
+        constexpr units::Us AccelerationStep{10};
+    } // namespace motor
 
     namespace system{
 
-        namespace motor{
-
-            constexpr bool ForwardDirection{1};
-
-            constexpr units::Us MaxStepInterval{800};
-            // constexpr units::Us TargetStepInterval{120};
-            constexpr units::Us AccelerationStep{10};
-
-        } // namespace motor
-
-
-
+        constexpr uint16_t MaxAdcValue{4095}; // 12 bits
     } // namespace system
 
 } // namespace constants

@@ -1,7 +1,7 @@
 #include "motor_manager.hpp"
 
 #include "constants.hpp"
-#include "units.hpp"
+#include "aliases.hpp"
 
 #include <pico/stdlib.h>
 
@@ -10,17 +10,17 @@
 #include <cstdint>
 
 void MotorManager::initialize(){
-    gpio_init(constants::pins::motor::Direction);
-    gpio_set_dir(constants::pins::motor::Direction, GPIO_OUT);
+    gpio_init(constants::pins::MotorDirection);
+    gpio_set_dir(constants::pins::MotorDirection, GPIO_OUT);
 
-    gpio_init(constants::pins::motor::Step);
-    gpio_set_dir(constants::pins::motor::Step, GPIO_OUT);
+    gpio_init(constants::pins::MotorStep);
+    gpio_set_dir(constants::pins::MotorStep, GPIO_OUT);
 
-    gpio_init(constants::pins::motor::Enable);
-    gpio_set_dir(constants::pins::motor::Enable, GPIO_OUT);
+    gpio_init(constants::pins::MotorEnable);
+    gpio_set_dir(constants::pins::MotorEnable, GPIO_OUT);
 
 
-    gpio_put(constants::pins::motor::Direction, constants::system::motor::ForwardDirection);
+    gpio_put(constants::pins::MotorDirection, constants::motor::ForwardDirection);
 }
 
 void MotorManager::update(){
@@ -35,14 +35,14 @@ void MotorManager::update(){
             start();
             isRunning_ = true;
             stepState_ = false;
-            gpio_put(constants::pins::motor::Step, 0);
-            currentStepInterval_ = constants::system::motor::MaxStepInterval;
+            gpio_put(constants::pins::MotorStep, 0);
+            currentStepInterval_ = constants::motor::MaxStepInterval;
             lastStepToggleTime_ = time_us_64();
         }else if(!DEBUG_shouldBeRunning && isRunning_){
             stop();
             isRunning_ = false;
             stepState_ = false;
-            currentStepInterval_ = constants::system::motor::MaxStepInterval;
+            currentStepInterval_ = constants::motor::MaxStepInterval;
         }
 
 

@@ -15,13 +15,15 @@ set(ENABLE_UART_OUTPUT 0)
 
 pico_sdk_init()
 
-add_executable(${PROJECT_TARGET}
-    sources/main.cpp
-    sources/music_box.cpp
+file(GLOB_RECURSE PROJECT_SOURCES
+    CONFIGURE_DEPENDS
+    ${CMAKE_CURRENT_LIST_DIR}/sources/*.cpp
+)
 
-    sources/motor/motor_manager.cpp
-    sources/motor/request.cpp
-    sources/motor/utilities.cpp
+add_executable(${PROJECT_TARGET} ${PROJECT_SOURCES})
+
+target_compile_definitions(${PROJECT_TARGET} PRIVATE
+    $<$<CONFIG:Debug>:DEBUG>
 )
 
 target_include_directories(${PROJECT_TARGET} PRIVATE 
@@ -31,6 +33,7 @@ target_include_directories(${PROJECT_TARGET} PRIVATE
 target_link_libraries(${PROJECT_TARGET} 
     pico_stdlib  
     hardware_i2c
+    hardware_adc
 )
 
 pico_enable_stdio_usb(${PROJECT_TARGET} ${ENABLE_USB_OUTPUT})

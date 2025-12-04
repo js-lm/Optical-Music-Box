@@ -1,10 +1,12 @@
 #pragma once
 
 #include "motor/motor_manager.hpp"
+#include "ir_sensor/ir_manager.hpp"
 
 class MusicBox{
 private:
-    MotorManager motorManager_{};
+    MotorManager    motorManager_{};
+    IrManager       irManager_{};
 
 public:
     MusicBox() = default;

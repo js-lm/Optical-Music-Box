@@ -1,6 +1,6 @@
 #pragma once
 
-#include "units.hpp"
+#include "aliases.hpp"
 #include "constants.hpp"
 
 #include <queue>
@@ -13,7 +13,7 @@ private:
     bool isRunning_{false};
     bool stepState_{false};
     units::TimestampUs lastStepToggleTime_{0};
-    units::Us currentStepInterval_{constants::system::motor::MaxStepInterval};
+    units::Us currentStepInterval_{constants::motor::MaxStepInterval};
     units::MsRate targetStepRate_{4};
 
 public:

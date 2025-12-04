@@ -2,6 +2,7 @@
 #include "constants.hpp"
 
 #include <pico/stdlib.h>
+#include <stdio.h>
 
 int MusicBox::run(){
     initialize();
@@ -14,9 +15,17 @@ int MusicBox::run(){
 }
 
 void MusicBox::initialize(){
+    stdio_init_all();
+    
+    printf("Music Box Initializing...\n");
+
     motorManager_.initialize();
+    irManager_.initialize();
+    
+    printf("Music Box Initialized!\n");
 }
 
 void MusicBox::update(){
-    motorManager_.update();
+    // motorManager_.update();
+    irManager_.update();
 }

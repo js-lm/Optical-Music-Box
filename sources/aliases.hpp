@@ -16,4 +16,15 @@ namespace units{
     using TimestampMs = uint64_t;
     using TimestampUs = uint64_t;
 
+    using Percentage = float;
+
 } // namespace units
+
+namespace physical{
+
+    using Pin           = uint8_t;
+    using I2CAddress    = uint8_t;
+    using Register      = uint8_t;
+    using Channel       = uint8_t;
+
+} // namespace physical
