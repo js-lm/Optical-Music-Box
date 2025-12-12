@@ -4,9 +4,8 @@
 
 class LightSensorManager{
 private:
-    bool canProceed_{false};
-
-    bool isExpectingBlack_;
+    bool isExpectingBlack_{true};
+    bool hasArrived_{false};
 
 public:
     LightSensorManager() = default;
@@ -15,7 +14,8 @@ public:
     void initialize();
     void update();
 
-    bool canProceedToNextRow() const{ return canProceed_;}
+    bool hasArrived() const{ return hasArrived_;}
+    void next();
 
 private:
     units::Percentage getLightReading() const;

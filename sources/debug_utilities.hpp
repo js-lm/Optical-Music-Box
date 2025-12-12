@@ -2,6 +2,7 @@
 
 #include <pico/stdlib.h>
 #include <pico/time.h>
+#include <cstring>
 
 #include "aliases.hpp"
 

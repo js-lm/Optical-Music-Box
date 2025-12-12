@@ -26,7 +26,7 @@ public:
 private:
     void spinMotor();
 
-private:
+public:
     void start(bool isForward = true);
     void stop();
 

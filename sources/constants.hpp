@@ -47,6 +47,13 @@ namespace constants{
         constexpr units::Us AccelerationStep{10};
     } // namespace motor
 
+    namespace light_sensor{
+        constexpr units::Percentage NoPaperThreshold{.9f};
+        constexpr units::Percentage WhiteThreshold{.6f}; // above
+        constexpr units::Percentage BlackThreshold{.4f}; // below
+
+    } // namespace light_sensor
+
     namespace system{
 
         constexpr uint16_t MaxAdcValue{4095}; // 12 bits

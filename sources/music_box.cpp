@@ -4,6 +4,8 @@
 #include <pico/stdlib.h>
 #include <stdio.h>
 
+#include "debug_utilities.hpp"
+
 int MusicBox::run(){
     initialize();
 
@@ -26,6 +28,24 @@ void MusicBox::initialize(){
 }
 
 void MusicBox::update(){
-    // motorManager_.update();
+    motorManager_.update();
     lightSensorManager_.update();
+
+
+    /* Debug */ {
+        if(lightSensorManager_.hasArrived()){
+            motorManager_.stop();
+
+            DEBUG_PRINT("Doing stuffs...");
+            sleep_ms(75);
+            lightSensorManager_.next();
+
+            motorManager_.start();
+        }
+    } /* Debug */
+
+
+
+
+
 }

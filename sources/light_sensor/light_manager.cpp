@@ -22,6 +22,19 @@ void LightSensorManager::update(){
     /* DEBUG */ {
         adc_select_input(constants::adc::LightInputChannel);
 
-        DEBUG_PRINT_TIMED(100, "IR raw: %d, getIrReading(): %.3f\n", adc_read(), getLightReading());
+        DEBUG_PRINT_TIMED(100, "IR raw: %d, getIrReading(): %.3f, %b\n", 
+            adc_read(), getLightReading(), hasArrived_
+        );
+
+        DEBUG_PRINT_IF_CHANGED("isExpectingBlack_: %b\n", isExpectingBlack_);
+        DEBUG_PRINT_IF_CHANGED("hasArrived_: %b\n", hasArrived_);
     } /* DEBUG */
+
+    const auto &lightReading{getLightReading()};
+
+    if(isExpectingBlack_){
+        hasArrived_ = lightReading < constants::light_sensor::BlackThreshold;
+    }else{
+        hasArrived_ = lightReading > constants::light_sensor::WhiteThreshold;
+    }
 }
