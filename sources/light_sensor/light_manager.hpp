@@ -2,15 +2,15 @@
 
 #include "aliases.hpp"
 
-class IrManager{
+class LightSensorManager{
 private:
     bool canProceed_{false};
 
     bool isExpectingBlack_;
 
 public:
-    IrManager() = default;
-    ~IrManager() = default;
+    LightSensorManager() = default;
+    ~LightSensorManager() = default;
 
     void initialize();
     void update();
@@ -18,5 +18,5 @@ public:
     bool canProceedToNextRow() const{ return canProceed_;}
 
 private:
-    units::Percentage getIrReading() const;
+    units::Percentage getLightReading() const;
 };

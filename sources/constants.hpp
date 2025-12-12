@@ -17,11 +17,11 @@ namespace constants{
         constexpr physical::Pin MidiTransmit {0};
         constexpr physical::Pin MidiReceive  {1};
 
-        constexpr physical::Pin IrAnalogOut {26};
+        constexpr physical::Pin LightAnalogOut {26};
     } // namespace pins
 
     namespace adc{
-        constexpr physical::Channel IrInputChannel{0};
+        constexpr physical::Channel LightInputChannel{0};
     } // namespace adc
 
     namespace i2c_address{

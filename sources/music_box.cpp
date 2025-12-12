@@ -20,12 +20,12 @@ void MusicBox::initialize(){
     printf("Music Box Initializing...\n");
 
     motorManager_.initialize();
-    irManager_.initialize();
+    lightSensorManager_.initialize();
     
     printf("Music Box Initialized!\n");
 }
 
 void MusicBox::update(){
     // motorManager_.update();
-    irManager_.update();
+    lightSensorManager_.update();
 }
