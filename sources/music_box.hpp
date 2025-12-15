@@ -2,11 +2,13 @@
 
 #include "motor/motor_manager.hpp"
 #include "light_sensor/light_manager.hpp"
+#include "color_sensors/sensors_manager.hpp"
 
 class MusicBox{
 private:
     MotorManager        motorManager_{};
     LightSensorManager  lightSensorManager_{};
+    SensorsManager      sensorsManager_{};
 
 public:
     MusicBox() = default;

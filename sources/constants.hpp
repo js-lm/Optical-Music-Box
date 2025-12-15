@@ -24,6 +24,10 @@ namespace constants{
         constexpr physical::Channel LightInputChannel{0};
     } // namespace adc
 
+    namespace i2c{
+        constexpr uint32_t Frequency{100000}; // 100 kHz
+    } // namespace i2c
+
     namespace i2c_address{
         constexpr physical::I2CAddress MuxFront  {0x70};
         constexpr physical::I2CAddress MuxBack   {0x71};
@@ -31,13 +35,35 @@ namespace constants{
     } // namespace i2c_address
 
     namespace color_sensor{
-        constexpr physical::Register CommandBit{0x80};
+        // command bit (0x80) + auto increment bit (0x20)
+        constexpr physical::Register CommandBit{0xa0};
 
         constexpr physical::Register Enable           {0x00 | CommandBit};
         constexpr physical::Register IntegrationTime  {0x01 | CommandBit};
         constexpr physical::Register Control          {0x0f | CommandBit};
         constexpr physical::Register Id               {0x12 | CommandBit};
         constexpr physical::Register ClearDataLow     {0x14 | CommandBit};
+
+        // configuration
+        constexpr size_t TotalSensorCount       {16};
+        constexpr size_t SensorsPerMux          {8};
+        constexpr uint8_t EnableValue           {0x03}; // PON (bit 0) and AEN (bit 1)
+        constexpr uint8_t IntegrationTimeValue  {0xf6}; // ~24ms
+        constexpr uint8_t GainValue             {0x01}; // 4x gain
+        constexpr size_t RgbcDataByteCount      {8};
+
+        // delay
+        constexpr units::Us MinimumReadInterval{50000};
+
+        // mux
+        constexpr uint8_t MuxDisableMask{0x00};
+
+        // color threshold
+        constexpr uint16_t BlackClearThreshold      {200};
+        constexpr float WhiteSaturationThreshold    {.25f};
+        constexpr float YellowRedRatioThreshold     {1.5f};
+        constexpr float YellowGreenRatioThreshold   {1.5f};
+
     } // namespace color_sensor
 
 
@@ -49,8 +75,8 @@ namespace constants{
 
     namespace light_sensor{
         constexpr units::Percentage NoPaperThreshold{.9f};
-        constexpr units::Percentage WhiteThreshold{.6f}; // above
-        constexpr units::Percentage BlackThreshold{.4f}; // below
+        constexpr units::Percentage WhiteThreshold{.8f}; // above
+        constexpr units::Percentage BlackThreshold{.3f}; // below
 
     } // namespace light_sensor
 
