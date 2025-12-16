@@ -31,21 +31,40 @@ void MusicBox::initialize(){
 }
 
 void MusicBox::update(){
-    // motorManager_.update();
-    // lightSensorManager_.update();
-    sensorsManager_.update();
+    motorManager_.update();
+    lightSensorManager_.update();
 
-    // /* DEBUG */ {
-    //     if(lightSensorManager_.hasArrived()){
-    //         motorManager_.stop();
+    /* DEBUG */ {
+        if(lightSensorManager_.hasArrived()){
+            motorManager_.stop();
 
-    //         DEBUG_PRINT("Doing stuffs...");
-    //         sleep_ms(250);
-    //         lightSensorManager_.next();
+            const auto colorRow{sensorsManager_.collectSensorData()};
 
-    //         motorManager_.start();
-    //     }
-    // } /* DEBUG */
+            DEBUG_PRINT("%i %i %i %i %i %i %i %i %i %i %i %i %i %i %i %i ", 
+                static_cast<int>(colorRow[0]),
+                static_cast<int>(colorRow[8]),
+                static_cast<int>(colorRow[1]),
+                static_cast<int>(colorRow[9]),
+                static_cast<int>(colorRow[2]),
+                static_cast<int>(colorRow[10]),
+                static_cast<int>(colorRow[3]),
+                static_cast<int>(colorRow[11]),
+                static_cast<int>(colorRow[4]),
+                static_cast<int>(colorRow[12]),
+                static_cast<int>(colorRow[5]),
+                static_cast<int>(colorRow[13]),
+                static_cast<int>(colorRow[6]),
+                static_cast<int>(colorRow[14]),
+                static_cast<int>(colorRow[7]),
+                static_cast<int>(colorRow[15])
+            );
+
+            sleep_ms(1000);
+            lightSensorManager_.next();
+
+            motorManager_.start();
+        }
+    } /* DEBUG */
 
 
 

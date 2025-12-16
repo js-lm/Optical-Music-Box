@@ -17,27 +17,26 @@ void SensorsManager::selectMuxChannel(i2c_inst_t *i2c, physical::I2CAddress muxA
     i2c_write_blocking(i2c, muxAddress, &channelMask, 1, false);
 }
 
-const char *SensorsManager::DEBUG_getColorName(const ColorReading &color){
-    if(color.clear < constants::color_sensor::BlackClearThreshold) return "black";
+SensorsManager::Color SensorsManager::getColor(const ColorReading &color) const{
+    if(color.clear < constants::color_sensor::BlackClearThreshold) return Color::Black;
 
     uint16_t maximumValue{std::max({color.red, color.green, color.blue})};
     uint16_t minimumValue{std::min({color.red, color.green, color.blue})};
     if((maximumValue - minimumValue) < (color.clear * constants::color_sensor::WhiteSaturationThreshold)){
-        return "white";
+        return Color::None;
     }
 
     if(color.red > color.blue * constants::color_sensor::YellowRedRatioThreshold 
     && color.green > color.blue * constants::color_sensor::YellowGreenRatioThreshold
     ){
-        return "yellow";
+        return Color::Yellow;
     }
     
     if(color.red > color.green && color.red > color.blue){
-        return "red";
+        return Color::Red;
     }else if(color.green > color.red && color.green > color.blue){
-        return "green";
+        return Color::Green;
     }else{
-        return "blue";
+        return Color::Blue;
     }
-    
 }

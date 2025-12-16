@@ -19,12 +19,3 @@ void SensorsManager::initialize(){
 
     lastReadTime_ = time_us_64();
 }
-
-void SensorsManager::update(){
-    units::TimestampUs currentTime{time_us_64()};
-    
-    if(currentTime - lastReadTime_ >= constants::color_sensor::MinimumReadInterval){
-        collectSensorData();
-        lastReadTime_ = currentTime;
-    }
-}

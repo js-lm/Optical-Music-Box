@@ -7,11 +7,9 @@
 
 class MotorManager{
 private:
-
-    // std::queue<Request> requests_;
-
     bool isRunning_{false};
     bool stepState_{false};
+    
     units::TimestampUs lastStepToggleTime_{0};
     units::Us currentStepInterval_{constants::motor::MaxStepInterval};
     units::MsRate targetStepRate_{4};
@@ -29,8 +27,4 @@ private:
 public:
     void start(bool isForward = true);
     void stop();
-
-    // void addRequest(bool isForward, units::Ms duration);
-    // void nextRequest();
-    // void clearRequest();
 };

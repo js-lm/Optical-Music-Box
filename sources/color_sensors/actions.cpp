@@ -44,31 +44,26 @@ void SensorsManager::initializeSensors(){
     DEBUG_PRINT("Color sensors initialized!");
 }
 
-void SensorsManager::collectSensorData(){
-    /* DEBUG */ {
-        static char outputBuffer[1024];
+SensorsManager::ColorRow SensorsManager::collectSensorData(){
+    // front sensors
+    ColorRow colorRow{};
+    for(physical::Channel sensorIndex{0}; sensorIndex < constants::color_sensor::SensorsPerMux; sensorIndex++){
+        colorRow[sensorIndex] = getColor(readSensorRGBC(sensorIndex));
+    }
+    colorRowQueue_.push(colorRow);
 
-        int offset{0};
+    ColorRow latestColorRow{};
 
-        for(physical::Channel sensorIndex{0}; sensorIndex < 16; sensorIndex++){
-            ColorReading color{readSensorRGBC(sensorIndex)};
-            
-            if(color.clear == 0){ // sensor not responding
-                offset += snprintf(outputBuffer + offset, sizeof(outputBuffer) - offset,
-                    "[%u](NoSensor)\n", sensorIndex
-                );
-            }else{
-                const char *colorName{DEBUG_getColorName(color)};
-                
-                offset += snprintf(outputBuffer + offset, sizeof(outputBuffer) - offset,
-                    "[%u]%s(R:%u G:%u B:%u C:%u)\n",
-                    sensorIndex, colorName, color.red, color.green, color.blue, color.clear
-                );
-            }
+    if(colorRowQueue_.size() > constants::color_sensor::FrontToBackDistance){
+        latestColorRow = colorRowQueue_.pop();
+
+        // back sensors
+        for(physical::Channel sensorIndex{constants::color_sensor::SensorsPerMux}; sensorIndex < constants::color_sensor::TotalSensorCount; sensorIndex++){
+            latestColorRow[sensorIndex] = getColor(readSensorRGBC(sensorIndex));
         }
+    }
 
-        DEBUG_PRINT_TIMED(500, "%s", outputBuffer);
-    } /* DEBUG */
+    return latestColorRow;
 }
 
 SensorsManager::ColorReading SensorsManager::readSensorRGBC(physical::Channel sensorIndex){

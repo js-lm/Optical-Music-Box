@@ -45,12 +45,12 @@ namespace constants{
         constexpr physical::Register ClearDataLow     {0x14 | CommandBit};
 
         // configuration
-        constexpr size_t TotalSensorCount       {16};
-        constexpr size_t SensorsPerMux          {8};
+        constexpr uint8_t TotalSensorCount      {16};
+        constexpr uint8_t SensorsPerMux         {8};
         constexpr uint8_t EnableValue           {0x03}; // PON (bit 0) and AEN (bit 1)
         constexpr uint8_t IntegrationTimeValue  {0xf6}; // ~24ms
         constexpr uint8_t GainValue             {0x01}; // 4x gain
-        constexpr size_t RgbcDataByteCount      {8};
+        constexpr uint8_t RgbcDataByteCount     {8};
 
         // delay
         constexpr units::Us MinimumReadInterval{50000};
@@ -64,8 +64,9 @@ namespace constants{
         constexpr float YellowRedRatioThreshold     {1.5f};
         constexpr float YellowGreenRatioThreshold   {1.5f};
 
+        // others
+        constexpr int FrontToBackDistance{4};
     } // namespace color_sensor
-
 
     namespace motor{
         constexpr bool ForwardDirection{1};
@@ -81,7 +82,6 @@ namespace constants{
     } // namespace light_sensor
 
     namespace system{
-
         constexpr uint16_t MaxAdcValue{4095}; // 12 bits
     } // namespace system
 
