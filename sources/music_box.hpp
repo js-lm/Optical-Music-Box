@@ -12,6 +12,8 @@ private:
     SensorsManager      sensorsManager_{};
     MidiManager         midiManager_{};
 
+    inline static MotorManager *motorManagerPointer_{nullptr};
+
 public:
     MusicBox() = default;
     ~MusicBox() = default;
@@ -21,4 +23,6 @@ public:
 private:
     void initialize();
     void update();
+
+    static void core1Entry();
 };

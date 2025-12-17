@@ -34,6 +34,7 @@ target_link_libraries(${PROJECT_TARGET}
     pico_stdlib  
     hardware_i2c
     hardware_adc
+    pico_multicore
 )
 
 pico_enable_stdio_usb(${PROJECT_TARGET} ${ENABLE_USB_OUTPUT})

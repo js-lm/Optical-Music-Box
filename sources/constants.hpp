@@ -73,6 +73,8 @@ namespace constants{
         constexpr bool ForwardDirection{1};
         constexpr units::Us MaxStepInterval{800};
         constexpr units::Us AccelerationStep{10};
+
+        constexpr uint8_t DefaltStepRate{4};
     } // namespace motor
 
     namespace light_sensor{

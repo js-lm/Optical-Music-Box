@@ -3,16 +3,17 @@
 #include "aliases.hpp"
 #include "constants.hpp"
 
+#include <atomic>
 #include <queue>
 
 class MotorManager{
 private:
-    bool isRunning_{false};
+    std::atomic<bool> isRunning_{false};
     bool stepState_{false};
     
     units::TimestampUs lastStepToggleTime_{0};
     units::Us currentStepInterval_{constants::motor::MaxStepInterval};
-    units::MsRate targetStepRate_{4};
+    units::MsRate targetStepRate_{constants::motor::DefaltStepRate};
 
 public:
     MotorManager() = default;
