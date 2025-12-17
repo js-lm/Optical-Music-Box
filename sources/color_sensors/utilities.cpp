@@ -17,6 +17,26 @@ void SensorsManager::selectMuxChannel(i2c_inst_t *i2c, physical::I2CAddress muxA
     i2c_write_blocking(i2c, muxAddress, &channelMask, 1, false);
 }
 
+SensorsManager::MuxChannelInfo SensorsManager::calculateMuxInfo(physical::Channel sensorIndex) const{
+    physical::I2CAddress muxAddress{sensorIndex < constants::color_sensor::SensorsPerMux ? 
+        constants::i2c_address::MuxFront : constants::i2c_address::MuxBack
+    };
+    physical::Channel muxChannel{static_cast<physical::Channel>(
+        sensorIndex % constants::color_sensor::SensorsPerMux
+    )};
+    return MuxChannelInfo{muxAddress, muxChannel};
+}
+
+void SensorsManager::selectSensorMuxChannel(physical::Channel sensorIndex){
+    MuxChannelInfo muxInfo{calculateMuxInfo(sensorIndex)};
+    selectMuxChannel(i2c0, muxInfo.muxAddress, muxInfo.muxChannel);
+}
+
+void SensorsManager::writeColorSensorRegister(physical::Register registerAddress, uint8_t value){
+    uint8_t data[2]{registerAddress, value};
+    i2c_write_blocking(i2c0, constants::i2c_address::ColorSensor, data, 2, false);
+}
+
 SensorsManager::Color SensorsManager::getColor(const ColorReading &color) const{
     if(color.clear < constants::color_sensor::BlackClearThreshold) return Color::Black;
 

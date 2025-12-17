@@ -32,33 +32,37 @@ private:
         uint16_t clear;
     };
 
-    using ColorRowHalf = std::array<Color, constants::color_sensor::SensorsPerMux>;
-
 private:
     units::TimestampUs lastReadTime_{0};
 
     utilities::RingBuffer<ColorRow, constants::color_sensor::FrontToBackDistance + 1> colorRowQueue_{};
-    ColorRow latestColorRow_{};
 
 public:
     SensorsManager() = default;
     ~SensorsManager() = default;
 
     void initialize();
-    void update();
 
+    void startSampling();
     ColorRow collectSensorData();
-
-    ColorRow getLatestColorRow() const{ return latestColorRow_;}
-    void next();
 
 private:
     void initializeSensors();
+    void setSensorEnabled(physical::Channel sensorIndex, bool enabled);
 
     ColorReading readSensorRGBC(physical::Channel sensorIndex);
 
     Color getColor(const ColorReading &color) const;
 
 private:
+    struct MuxChannelInfo{
+        physical::I2CAddress muxAddress;
+        physical::Channel muxChannel;
+    };
+
+    MuxChannelInfo calculateMuxInfo(physical::Channel sensorIndex) const;
+    void selectSensorMuxChannel(physical::Channel sensorIndex);
+    void writeColorSensorRegister(physical::Register registerAddress, uint8_t value);
+
     void selectMuxChannel(i2c_inst_t *i2c, physical::I2CAddress muxAddress, physical::Channel channel);
 };

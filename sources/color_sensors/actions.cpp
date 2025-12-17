@@ -13,35 +13,27 @@ void SensorsManager::initializeSensors(){
     int successCount{0};
     
     for(physical::Channel sensorIndex{0}; sensorIndex < constants::color_sensor::TotalSensorCount; sensorIndex++){
-        physical::I2CAddress muxAddress{sensorIndex < constants::color_sensor::SensorsPerMux ? 
-            constants::i2c_address::MuxFront : constants::i2c_address::MuxBack
-        };
-        physical::Channel muxChannel{static_cast<physical::Channel>(
-            sensorIndex % constants::color_sensor::SensorsPerMux
-        )};
+        selectSensorMuxChannel(sensorIndex);
 
-        selectMuxChannel(i2c0, muxAddress, muxChannel);
-
-        uint8_t enableData[2]{
-            constants::color_sensor::Enable, 
-            constants::color_sensor::EnableValue
-        };
-        i2c_write_blocking(i2c0, constants::i2c_address::ColorSensor, enableData, 2, false);
-
-        uint8_t timeData[2]{
-            constants::color_sensor::IntegrationTime, 
-            constants::color_sensor::IntegrationTimeValue
-        };
-        i2c_write_blocking(i2c0, constants::i2c_address::ColorSensor, timeData, 2, false);
-
-        uint8_t gainData[2]{
-            constants::color_sensor::Control, 
-            constants::color_sensor::GainValue
-        };
-        i2c_write_blocking(i2c0, constants::i2c_address::ColorSensor, gainData, 2, false);
+        writeColorSensorRegister(constants::color_sensor::Enable, constants::color_sensor::EnableValue);
+        writeColorSensorRegister(constants::color_sensor::IntegrationTime, constants::color_sensor::IntegrationTimeValue);
+        writeColorSensorRegister(constants::color_sensor::Control, constants::color_sensor::GainValue);
     }
 
     DEBUG_PRINT("Color sensors initialized!");
+}
+
+void SensorsManager::setSensorEnabled(physical::Channel sensorIndex, bool enabled){
+    selectSensorMuxChannel(sensorIndex);
+
+    uint8_t enableValue{enabled ? constants::color_sensor::EnableValue : static_cast<uint8_t>(0x01)};
+    writeColorSensorRegister(constants::color_sensor::Enable, enableValue);
+}
+
+void SensorsManager::startSampling(){
+    for(physical::Channel sensorIndex{0}; sensorIndex < constants::color_sensor::TotalSensorCount; sensorIndex++){
+        setSensorEnabled(sensorIndex, true);
+    }
 }
 
 SensorsManager::ColorRow SensorsManager::collectSensorData(){
@@ -69,15 +61,10 @@ SensorsManager::ColorRow SensorsManager::collectSensorData(){
 SensorsManager::ColorReading SensorsManager::readSensorRGBC(physical::Channel sensorIndex){
     ColorReading result{0, 0, 0, 0};
 
-    physical::I2CAddress muxAddress{sensorIndex < constants::color_sensor::SensorsPerMux ? 
-        constants::i2c_address::MuxFront : constants::i2c_address::MuxBack
-    };
-    physical::Channel muxChannel{static_cast<physical::Channel>(sensorIndex % constants::color_sensor::SensorsPerMux)};
-
-    selectMuxChannel(i2c0, muxAddress, muxChannel);
+    selectSensorMuxChannel(sensorIndex);
 
     // clear: 0x14-0x15, red: 0x16-0x17, green: 0x18-0x19, blue: 0x1A-0x1B
-    uint8_t registerAddress{constants::color_sensor::ClearDataLow};
+    physical::Register registerAddress{constants::color_sensor::ClearDataLow};
     uint8_t rgbcData[constants::color_sensor::RgbcDataByteCount]{};
 
     int writeResult{i2c_write_blocking(i2c0, constants::i2c_address::ColorSensor, &registerAddress, 1, true)};

@@ -44,12 +44,13 @@ void MusicBox::update(){
         if(lightSensorManager_.hasArrived()){
             motorManager_.stop();
 
+            sensorsManager_.startSampling();
+
+            sleep_ms(200);
+            midiManager_.silence(0);
+
             const auto colorRow{sensorsManager_.collectSensorData()};
-
-            // TODO: I suspect the issue might be related to colors being collected 
-            // even while the motor is moving
-            // I need a state machine
-
+            
             DEBUG_PRINT("%i %i %i %i %i %i %i %i %i %i %i %i %i %i %i %i ", 
                 static_cast<int>(colorRow[0]),
                 static_cast<int>(colorRow[8]),
@@ -85,10 +86,6 @@ void MusicBox::update(){
             if(static_cast<int>(colorRow[14]) != 0) midiManager_.noteOn(0, 73, 100);
             if(static_cast<int>(colorRow[7]) != 0) midiManager_.noteOn(0, 74, 100);
             if(static_cast<int>(colorRow[15]) != 0) midiManager_.noteOn(0, 75, 100);
-
-            sleep_ms(200);
-
-            midiManager_.silence(0);
 
             lightSensorManager_.next();
             motorManager_.start();

@@ -66,7 +66,7 @@ namespace constants{
         constexpr float YellowGreenRatioThreshold   {1.5f};
 
         // others
-        constexpr int FrontToBackDistance{4};
+        constexpr int FrontToBackDistance{5};
     } // namespace color_sensor
 
     namespace motor{
