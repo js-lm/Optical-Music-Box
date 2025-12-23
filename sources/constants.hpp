@@ -1,7 +1,9 @@
 #pragma once
 
-#include <cstddef>
 #include <hardware/uart.h>
+
+#include <cstddef>
+#include <array>
 
 #include "aliases.hpp"
 
@@ -67,6 +69,9 @@ namespace constants{
 
         // others
         constexpr int FrontToBackDistance{5};
+        constexpr std::array<uint8_t, TotalSensorCount> SensorIndexMap{
+            0, 8, 1, 9, 2, 10, 3, 11, 4, 12, 5, 13, 6, 14, 7, 15
+        };
     } // namespace color_sensor
 
     namespace motor{

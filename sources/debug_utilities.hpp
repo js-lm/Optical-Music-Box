@@ -3,6 +3,7 @@
 #include <pico/stdlib.h>
 #include <pico/time.h>
 #include <cstring>
+#include <stdio.h>
 
 #include "aliases.hpp"
 
@@ -35,8 +36,14 @@
                 lastPrintTime = currentTime; \
             } \
         } while(false);
+
+    #define DEBUG_SLEEP_MS(durationMs) \
+        do{ \
+            sleep_ms(durationMs); \
+        } while(false);
 #else
     #define DEBUG_PRINT(format, ...) do{} while(false);
     #define DEBUG_PRINT_IF_CHANGED(format, ...) do{} while(false);
     #define DEBUG_PRINT_TIMED(intervalMs, format, ...) do{} while(false);
+    #define DEBUG_SLEEP_MS(durationMs) do{} while(false);
 #endif
