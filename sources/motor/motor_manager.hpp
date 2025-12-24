@@ -13,7 +13,7 @@ private:
     
     units::TimestampUs lastStepToggleTime_{0};
     units::Us currentStepInterval_{constants::motor::MaxStepInterval};
-    units::MsRate targetStepRate_{constants::motor::DefaltStepRate};
+    units::MsRate targetStepRate_{constants::motor::DefaultStepRate};
 
 public:
     MotorManager() = default;

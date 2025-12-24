@@ -18,6 +18,14 @@ namespace units{
 
     using Percentage = float;
 
+    namespace midi{
+
+        using Channel   = uint8_t;
+        using Note      = uint8_t;
+        using Velocity  = uint8_t;
+
+    } // namespace midi
+
 } // namespace units
 
 namespace physical{

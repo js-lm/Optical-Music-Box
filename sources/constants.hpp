@@ -7,6 +7,12 @@
 
 #include "aliases.hpp"
 
+#include "color_sensors/color_sensors_constants.hpp"
+#include "light_sensor/light_sensor_constants.hpp"
+#include "midi_unit/midi_constants.hpp"
+#include "motor/motor_constants.hpp"
+#include "music_decoder/decoder_constants.hpp"
+
 namespace constants{
 
     namespace pins{
@@ -37,86 +43,6 @@ namespace constants{
         constexpr physical::I2CAddress ColorSensor{0x29};
     } // namespace i2c_address
 
-    namespace color_sensor{
-        // command bit (0x80) + auto increment bit (0x20)
-        constexpr physical::Register CommandBit{0xa0};
-
-        constexpr physical::Register Enable           {0x00 | CommandBit};
-        constexpr physical::Register IntegrationTime  {0x01 | CommandBit};
-        constexpr physical::Register Control          {0x0f | CommandBit};
-        constexpr physical::Register Id               {0x12 | CommandBit};
-        constexpr physical::Register ClearDataLow     {0x14 | CommandBit};
-
-        // configuration
-        constexpr uint8_t TotalSensorCount      {16};
-        constexpr uint8_t SensorsPerMux         {8};
-        constexpr uint8_t EnableValue           {0x03}; // PON (bit 0) and AEN (bit 1)
-        constexpr uint8_t IntegrationTimeValue  {0xf6}; // ~24ms
-        constexpr uint8_t GainValue             {0x01}; // 4x gain
-        constexpr uint8_t RgbcDataByteCount     {8};
-
-        // delay
-        constexpr units::Us MinimumReadInterval{50000};
-
-        // mux
-        constexpr uint8_t MuxDisableMask{0x00};
-
-        // color threshold
-        constexpr uint16_t BlackClearThreshold      {200};
-        constexpr float WhiteSaturationThreshold    {.25f};
-        constexpr float YellowRedRatioThreshold     {1.5f};
-        constexpr float YellowGreenRatioThreshold   {1.5f};
-
-        // others
-        constexpr int FrontToBackDistance{5};
-        constexpr std::array<uint8_t, TotalSensorCount> SensorIndexMap{
-            0, 8, 1, 9, 2, 10, 3, 11, 4, 12, 5, 13, 6, 14, 7, 15
-        };
-    } // namespace color_sensor
-
-    namespace motor{
-        constexpr bool ForwardDirection{1};
-        constexpr units::Us MaxStepInterval{800};
-        constexpr units::Us AccelerationStep{10};
-
-        constexpr uint8_t DefaltStepRate{4};
-    } // namespace motor
-
-    namespace light_sensor{
-        constexpr units::Percentage NoPaperThreshold{.9f};
-        constexpr units::Percentage WhiteThreshold{.8f}; // above
-        constexpr units::Percentage BlackThreshold{.3f}; // below
-
-    } // namespace light_sensor
-
-    namespace midi{
-        // UART configuration
-        inline uart_inst_t *UartInstance{uart0};
-        constexpr uint32_t BaudRate     {31250};
-        constexpr uint8_t DataBits      {8};
-        constexpr uint8_t StopBits      {1};
-
-        // message status bytes
-        constexpr uint8_t NoteOffStatus         {0x80};
-        constexpr uint8_t NoteOnStatus          {0x90};
-        constexpr uint8_t ProgramChangeStatus   {0xc0};
-        constexpr uint8_t ControlChangeStatus   {0xb0};
-
-        // message parameters
-        constexpr uint8_t ChannelMask           {0x0f};
-        constexpr uint8_t MaximumVelocity       {127};
-        constexpr uint8_t MaximumNote           {127};
-        constexpr uint8_t MaximumChannel        {15};
-
-        // controller
-        constexpr uint8_t BankSelectController  {0};
-        constexpr uint8_t AllSoundOffController {120};
-        constexpr uint8_t ControllerValueOff    {0};
-
-        // MT-32 sound variation
-        constexpr uint8_t DefaultBankValue      {0};
-        constexpr uint8_t AlternativeBankValue  {127};
-    } // namespace midi
 
     namespace system{
         constexpr uint16_t MaxAdcValue{4095}; // 12 bits
