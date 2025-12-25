@@ -1,6 +1,9 @@
 #pragma once
 
 #include <cstdint>
+#include <variant>
+
+#include "music_data/instrument_types.hpp"
 
 namespace units{
 
@@ -22,11 +25,21 @@ namespace units{
 
         using Channel   = uint8_t;
         using Note      = uint8_t;
+        using NoteOffset= int8_t;
         using Velocity  = uint8_t;
+        using Octave    = int8_t;
 
     } // namespace midi
 
 } // namespace units
+
+namespace midi_data{
+
+    using Instrument = std::variant<instruments::Default, instruments::Mt32>;
+
+    using UniqueEventPointer = std::unique_ptr<midi_command::BaseCommand>;
+
+} // namespace midi_data
 
 namespace physical{
 

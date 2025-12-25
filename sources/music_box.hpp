@@ -4,6 +4,7 @@
 #include "light_sensor/light_manager.hpp"
 #include "color_sensors/sensors_manager.hpp"
 #include "midi_unit/midi_manager.hpp"
+#include "music_decoder/music_decoder.hpp"
 
 #include "utilities/enum_map.hpp"
 
@@ -37,8 +38,7 @@ private:
 
 private:
     enum class Channel : uint8_t{ None, Instrument_1, Instrument_2, Instrument_3, Chord};
-    using Instrument = MidiManager::Instrument;
-    utilities::EnumMap<Channel, Instrument> channelInstruments_;
+    utilities::EnumMap<Channel, midi_data::Instrument> channelInstruments_;
 
 public:
     MusicBox() = default;
