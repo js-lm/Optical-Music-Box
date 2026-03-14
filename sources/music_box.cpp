@@ -50,7 +50,7 @@ void MusicBox::initialize(){
         // for(const auto &[channel, instrument] : channelInstruments_){
         //     midiManager_.setInstrument(static_cast<uint8_t>(channel), instrument);
         // }
-        midiManager_.setInstrument(0, Instrument::Grand_Piano_1);
+        midiManager_.setInstrument(0, instruments::Default::Grand_Piano_1);
     } /* DEBUG */
 }
 

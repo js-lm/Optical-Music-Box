@@ -1,9 +1,14 @@
 #pragma once
 
 #include <cstdint>
+#include <memory>
 #include <variant>
 
 #include "music_data/instrument_types.hpp"
+
+namespace midi_command{
+    class BaseCommand;
+}
 
 namespace units{
 

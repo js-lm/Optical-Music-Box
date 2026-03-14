@@ -5,7 +5,11 @@
 
 #include "constants.hpp"
 
-void MidiManager::noteOn(Channel channel, Note note, Velocity velocity){
+void MidiManager::noteOn(
+    units::midi::Channel channel,
+    units::midi::Note note,
+    units::midi::Velocity velocity
+){
     if(channel > constants::midi::MaximumChannel
     || note > constants::midi::MaximumNote
     || velocity > constants::midi::MaximumVelocity
@@ -24,31 +28,31 @@ void MidiManager::noteOn(Channel channel, Note note, Velocity velocity){
     uart_putc_raw(constants::midi::UartInstance, velocity);
 }
 
-void MidiManager::noteOff(Channel channel, Note note){
+void MidiManager::noteOff(units::midi::Channel channel, units::midi::Note note){
     if(channel > constants::midi::MaximumChannel || note > constants::midi::MaximumNote){
         return;
     }
-    
+
     uint8_t statusByte{
         static_cast<uint8_t>(
             constants::midi::NoteOffStatus | (channel & constants::midi::ChannelMask)
         )
     };
-    
+
     uart_putc_raw(constants::midi::UartInstance, statusByte);
     uart_putc_raw(constants::midi::UartInstance, note);
     uart_putc_raw(constants::midi::UartInstance, 0);
 }
 
-void MidiManager::playChord(Channel channel, Chord chord, Style style, BPM bpm){
+void MidiManager::playChord(units::midi::Channel channel, Chord chord, Style style, BPM bpm){
 
 }
 
-void MidiManager::stopChord(Channel channel){
+void MidiManager::stopChord(units::midi::Channel channel){
 
 }
 
-void MidiManager::silence(Channel channel){
+void MidiManager::silence(units::midi::Channel channel){
     if(channel > constants::midi::MaximumChannel) return;
 
     uint8_t statusByte{

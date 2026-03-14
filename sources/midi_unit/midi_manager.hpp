@@ -4,6 +4,7 @@
 #include <span>
 
 #include "chord.hpp"
+#include "aliases.hpp"
 
 class MidiManager{
 public:
