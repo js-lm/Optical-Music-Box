@@ -1,6 +1,7 @@
 #pragma once
 
 #include "aliases.hpp"
+#include "midi_context.hpp"
 
 namespace midi_command{
 
@@ -10,7 +11,7 @@ namespace midi_command{
         BaseCommand() = default;
         virtual ~BaseCommand() = 0;
 
-        virtual void execute() = 0;
+        virtual void execute(ExecutionContext &context) = 0;
     };
     // } // namespace _
 
@@ -28,7 +29,7 @@ namespace midi_command{
         NoteOn() = delete;
         ~NoteOn() override = default;
 
-        void execute() override;
+        void execute(ExecutionContext &context) override;
     };
 
     class NoteOff : public BaseCommand{
@@ -42,7 +43,7 @@ namespace midi_command{
         NoteOff() = delete;
         ~NoteOff() override = default;
 
-        void execute() override;
+        void execute(ExecutionContext &context) override;
     };
 
 } // namespace midi_command

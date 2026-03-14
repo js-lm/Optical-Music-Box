@@ -39,6 +39,7 @@ private:
 private:
     enum class Channel : uint8_t{ None, Instrument_1, Instrument_2, Instrument_3, Chord};
     utilities::EnumMap<Channel, midi_data::Instrument> channelInstruments_;
+    midi_command::MachineState commandState_{};
 
 public:
     MusicBox() = default;
