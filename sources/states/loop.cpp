@@ -2,6 +2,8 @@
 
 #include "debug_utilities.hpp"
 
+#include <optional>
+
 void MusicBox::updateSeekState(){
     lightSensorManager_.update();
 
@@ -14,32 +16,44 @@ void MusicBox::updateSeekState(){
 
 void MusicBox::updateWaitState(){
     // DEBUG
-    if(timeSinceLastStep_ > units::Ms2Us(200)){
+    if(timeSinceLastStep_ > units::Ms2Us(constants::runtime::QueueTick)){
         timeSinceLastStep_ = 0;
+
+        while(!commandQueue_.isEmpty()){
+            executeNextBufferedCommand();
+        }
+
         nextState();
     }
 }
 
 void MusicBox::updateProcessState(){
     const auto colorRow{sensorsManager_.collectSensorData()};
-    midi_command::ExecutionContext executionContext{commandState_, midiManager_, 0};
 
     using namespace constants::color_sensor;
     for(int sensorIndex{0}; sensorIndex < TotalSensorCount; sensorIndex++){
         DEBUG_PRINT("%i ", static_cast<int>(colorRow[SensorIndexMap[sensorIndex]]));
 
         const units::midi::Note note{static_cast<units::midi::Note>(60 + sensorIndex)};
-        executionContext.channel = 0;
+        const bool isSensorActive{static_cast<uint8_t>(colorRow[SensorIndexMap[sensorIndex]]) != 0};
 
-        midi_data::UniqueEventPointer command{};
-        if(static_cast<uint8_t>(colorRow[SensorIndexMap[sensorIndex]]) != 0){
-            command = std::make_unique<midi_command::NoteOn>(0, note);
-        }else{
-            command = std::make_unique<midi_command::NoteOff>(0, note);
+        std::optional<midi_command::Command> command{};
+        if(isSensorActive && !sensorNoteActive_[sensorIndex]){
+            command = midi_command::QueuedNoteOn{
+                0,
+                note,
+                constants::runtime::DefaultNoteVelocity
+            };
+            sensorNoteActive_[sensorIndex] = true;
+        }else if(!isSensorActive && sensorNoteActive_[sensorIndex]){
+            command = midi_command::QueuedNoteOff{0, note};
+            sensorNoteActive_[sensorIndex] = false;
         }
 
         if(command){
-            command->execute(executionContext);
+            // if(commandQueue_.isFull()) executeNextBufferedCommand();
+            // else commandQueue_.push(std::move(*command));
+            if(!commandQueue_.isFull()) commandQueue_.push(std::move(*command));
         }
     }
 

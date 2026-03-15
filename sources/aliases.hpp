@@ -6,10 +6,6 @@
 
 #include "music_data/instrument_types.hpp"
 
-namespace midi_command{
-    class BaseCommand;
-}
-
 namespace units{
 
     using Ms = uint32_t;
@@ -42,7 +38,7 @@ namespace midi_data{
 
     using Instrument = std::variant<instruments::Default, instruments::Mt32>;
 
-    using UniqueEventPointer = std::unique_ptr<midi_command::BaseCommand>;
+    // using UniqueEventPointer = std::unique_ptr<midi_command::BaseCommand>;
 
 } // namespace midi_data
 

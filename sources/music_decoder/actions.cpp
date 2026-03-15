@@ -1,6 +1,6 @@
 #include "music_decoder.hpp"
 
-midi_data::UniqueEventPointer MusicDecoder::decode(
+std::optional<midi_command::Command> MusicDecoder::decode(
     const InstrumentInstruction &value,
     const units::midi::Channel channel
 ) const{
@@ -9,20 +9,22 @@ midi_data::UniqueEventPointer MusicDecoder::decode(
     case Base5Value::Blue:
     case Base5Value::Black:
 
-    return nullptr;
+    return std::nullopt;
 
     default: break;
     }
 
-    return std::make_unique<midi_command::NoteOn>(
-        channel, base5ToDecimal(value)
-    );
+    return midi_command::QueuedNoteOn{
+        channel,
+        static_cast<units::midi::Note>(base5ToDecimal(value)),
+        constants::runtime::DefaultNoteVelocity
+    };
 }
 
-midi_data::UniqueEventPointer MusicDecoder::decode(
+std::optional<midi_command::Command> MusicDecoder::decode(
     const ChordInstruction &value
 ) const{
 
 
-    return nullptr;
+    return std::nullopt;
 }

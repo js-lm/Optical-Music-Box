@@ -7,6 +7,7 @@
 #include "music_decoder/music_decoder.hpp"
 
 #include "utilities/enum_map.hpp"
+#include "utilities/ring_buffer.hpp"
 
 class MusicBox{
 private:
@@ -38,8 +39,10 @@ private:
 
 private:
     enum class Channel : uint8_t{ None, Instrument_1, Instrument_2, Instrument_3, Chord};
-    utilities::EnumMap<Channel, midi_data::Instrument> channelInstruments_;
+    utilities::EnumMap<Channel, midi_data::Instrument> channelInstruments_{};
     midi_command::MachineState commandState_{};
+    utilities::RingBuffer<midi_command::Command, constants::system::MaxCommandsInBuffer> commandQueue_{};
+    std::array<bool, constants::color_sensor::TotalSensorCount> sensorNoteActive_{};
 
 public:
     MusicBox() = default;
@@ -68,6 +71,8 @@ private:
     void updateSeekState();
     void updateWaitState();
     void updateProcessState();
+
+    void executeNextBufferedCommand();
 
 private:
     constexpr Channel color2Channel(SensorsManager::Color color) const;

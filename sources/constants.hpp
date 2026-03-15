@@ -46,6 +46,17 @@ namespace constants{
 
     namespace system{
         constexpr uint16_t MaxAdcValue{4095}; // 12 bits
+
+        constexpr uint8_t MaxCommandsInBuffer{255};
     } // namespace system
+
+    namespace runtime{
+        constexpr units::Ms QueueTick{80};
+
+        constexpr units::MsRate MinimumStepRate{1};
+        constexpr units::MsRate MaximumStepRate{12};
+
+        constexpr units::midi::Velocity DefaultNoteVelocity{100};
+    } // namespace runtime
 
 } // namespace constants

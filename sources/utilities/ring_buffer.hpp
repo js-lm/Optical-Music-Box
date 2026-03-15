@@ -2,6 +2,7 @@
 
 #include <cstdint>
 #include <array>
+#include <utility>
 
 namespace utilities{
 
@@ -17,20 +18,24 @@ namespace utilities{
     public:
         bool push(Type item){
             if(size_ == MaxSize) return false;
-            buffer_[head_] = item;
+            buffer_[head_] = std::move(item);
             head_ = (head_ + 1) % MaxSize;
             size_++;
             return true;
         }
 
         Type pop(){
-            Type item{buffer_[tail_]};
+            if(size_ == 0) return Type{};
+
+            Type item{std::move(buffer_[tail_])};
             tail_ = (tail_ + 1) % MaxSize;
             size_--;
             return item;
         }
 
         uint8_t size() const{ return size_;}
+        bool isEmpty() const{ return size_ == 0;}
+        bool isFull() const{ return size_ == MaxSize;}
     };
 
 } // namespace utilities

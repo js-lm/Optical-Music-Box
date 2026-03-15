@@ -23,8 +23,6 @@ namespace midi_command{
     struct ExecutionContext{
         MachineState &state;
         MidiManager &midiManager;
-
-        units::midi::Channel channel;
     };
 
 } // namespace midi_command

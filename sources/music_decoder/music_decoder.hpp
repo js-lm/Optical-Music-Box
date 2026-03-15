@@ -7,6 +7,7 @@
 
 #include <array>
 #include <memory>
+#include <optional>
 
 class MusicDecoder{
 public:
@@ -26,11 +27,11 @@ public:
     MusicDecoder() = default;
     ~MusicDecoder() = default;
 
-    midi_data::UniqueEventPointer decode(
+    std::optional<midi_command::Command> decode(
         const InstrumentInstruction &value,
         const units::midi::Channel channel
     ) const;
-    midi_data::UniqueEventPointer decode(
+    std::optional<midi_command::Command> decode(
         const ChordInstruction &value
     ) const;
 
