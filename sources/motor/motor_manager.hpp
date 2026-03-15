@@ -13,7 +13,7 @@ private:
     
     units::TimestampUs lastStepToggleTime_{0};
     units::Us currentStepInterval_{constants::motor::MaxStepInterval};
-    units::MsRate targetStepRate_{constants::motor::DefaultStepRate};
+    std::atomic<units::StepsPerSecond> targetStepRate_{constants::motor::DefaultStepRate};
 
 public:
     MotorManager() = default;
@@ -28,4 +28,7 @@ private:
 public:
     void start(bool isForward = true);
     void stop();
+
+    void setTargetStepRate(units::StepsPerSecond targetStepRate);
+    units::StepsPerSecond targetStepRate() const;
 };

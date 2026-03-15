@@ -18,11 +18,14 @@ void MotorManager::spinMotor(){
         // if(!stepState_ && currentStepInterval_ > constants::motor::TargetStepInterval){
         if(!stepState_){
             units::Us targetInterval{constants::motor::MaxStepInterval};
+            const units::StepsPerSecond targetStepRate{targetStepRate_.load()};
 
-            if(targetStepRate_ > 0){
-                units::MsRate toggleRate{static_cast<units::MsRate>(targetStepRate_ * 2)};
+            if(targetStepRate > 0){
+                const float toggleRate{targetStepRate * 2.0f};
 
-                units::Us computedInterval{toggleRate ? units::Ms2Us(1) / toggleRate : 0};
+                units::Us computedInterval{
+                    static_cast<units::Us>(toggleRate ? (1000000.0f / toggleRate) : .0f)
+                };
 
                 if(computedInterval == 0) computedInterval = 1;
 

@@ -18,7 +18,6 @@ public:
         Red,
         Green,
         Blue,
-        Yellow,
         Black
     };
 

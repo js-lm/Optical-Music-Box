@@ -6,7 +6,7 @@ std::optional<midi_command::Command> MusicDecoder::decode(
 ) const{
 
     switch(value[0]){
-    case Base5Value::Blue:
+    case Base5Value::Blue: // TODO:
     case Base5Value::Black:
 
     return std::nullopt;
@@ -14,10 +14,19 @@ std::optional<midi_command::Command> MusicDecoder::decode(
     default: break;
     }
 
+    const auto decimalValue{base5ToDecimal(value)};
+
+    if(decimalValue == 0){
+        return midi_command::QueuedNoteOff{
+            channel, 
+            static_cast<units::midi::Note>(base5ToDecimal(value))
+        };
+    }
+
     return midi_command::QueuedNoteOn{
         channel,
         static_cast<units::midi::Note>(base5ToDecimal(value)),
-        constants::runtime::DefaultNoteVelocity
+        constants::runtime::DefaultNoteVelocity // TODO:
     };
 }
 

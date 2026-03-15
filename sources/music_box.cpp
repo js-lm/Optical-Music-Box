@@ -51,6 +51,9 @@ void MusicBox::initialize(){
         //     midiManager_.setInstrument(static_cast<uint8_t>(channel), instrument);
         // }
         midiManager_.setInstrument(0, instruments::Default::Grand_Piano_1);
+        midiManager_.setInstrument(1, instruments::Mt32::Violin);
+        midiManager_.setInstrument(2, instruments::Default::Trumpet);
+        midiManager_.setInstrument(3, instruments::Mt32::Xylophone);
     } /* DEBUG */
 }
 

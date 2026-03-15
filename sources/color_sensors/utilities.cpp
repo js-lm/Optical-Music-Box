@@ -46,15 +46,15 @@ SensorsManager::Color SensorsManager::getColor(const ColorReading &color) const{
         return Color::None;
     }
 
-    if(color.red > color.blue * constants::color_sensor::YellowRedRatioThreshold 
-    && color.green > color.blue * constants::color_sensor::YellowGreenRatioThreshold
-    ){
-        return Color::Yellow;
-    }
+    // if(color.red > color.blue * constants::color_sensor::YellowRedRatioThreshold 
+    // && color.green > color.blue * constants::color_sensor::YellowGreenRatioThreshold
+    // ){
+    //     return Color::Yellow;
+    // }
     
-    if(color.red > color.green && color.red > color.blue){
+    if(color.red >= color.green && color.red >= color.blue){
         return Color::Red;
-    }else if(color.green > color.red && color.green > color.blue){
+    }else if(color.green >= color.blue){
         return Color::Green;
     }else{
         return Color::Blue;

@@ -20,6 +20,7 @@ namespace constants::midi{
     constexpr uint8_t ChannelMask           {0x0f};
     constexpr uint8_t MaximumVelocity       {127};
     constexpr uint8_t MaximumNote           {127};
+    constexpr uint16_t NumberOfNotes        {MaximumNote + 1};
     constexpr uint8_t MaximumChannel        {15};
 
     // controller
