@@ -51,10 +51,8 @@ namespace constants{
     } // namespace system
 
     namespace runtime{
-        constexpr units::Ms QueueTick{80};
-
-        constexpr units::StepsPerSecond MinimumStepRate{.25f};
-        constexpr units::StepsPerSecond MaximumStepRate{12.0f}; // Not tested
+        constexpr units::StepsPerSecond MinimumStepRate{1000};
+        constexpr units::StepsPerSecond MaximumStepRate{12000};
 
         constexpr units::midi::Velocity DefaultNoteVelocity{100};
     } // namespace runtime

@@ -21,7 +21,7 @@ namespace units{
     using TimestampUs = uint64_t;
 
     using Percentage = float;
-    using StepsPerSecond = float;
+    using StepsPerSecond = uint16_t;
 
     namespace midi{
 

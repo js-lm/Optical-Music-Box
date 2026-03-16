@@ -33,7 +33,9 @@ void LightSensorManager::update(){
     const auto &lightReading{getLightReading()};
 
     if(isExpectingBlack_){
-        hasArrived_ = lightReading < constants::light_sensor::BlackThreshold;
+        if(lightReading < constants::light_sensor::BlackThreshold){
+            isExpectingBlack_ = false;
+        }
     }else{
         hasArrived_ = lightReading > constants::light_sensor::WhiteThreshold;
     }

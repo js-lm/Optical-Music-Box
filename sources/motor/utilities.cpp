@@ -21,10 +21,11 @@ void MotorManager::spinMotor(){
             const units::StepsPerSecond targetStepRate{targetStepRate_.load()};
 
             if(targetStepRate > 0){
-                const float toggleRate{targetStepRate * 2.0f};
-
+                const uint32_t toggleRate{static_cast<uint32_t>(targetStepRate) * 2U};
                 units::Us computedInterval{
-                    static_cast<units::Us>(toggleRate ? (1000000.0f / toggleRate) : .0f)
+                    toggleRate
+                        ? static_cast<units::Us>((1000000ULL + (toggleRate / 2U)) / toggleRate)
+                        : 0
                 };
 
                 if(computedInterval == 0) computedInterval = 1;
