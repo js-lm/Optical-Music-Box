@@ -5,6 +5,7 @@
 #include "color_sensors/sensors_manager.hpp"
 #include "midi_unit/midi_manager.hpp"
 #include "music_decoder/music_decoder.hpp"
+#include "calibrator/calibrator.hpp"
 
 #include "utilities/enum_map.hpp"
 #include "utilities/ring_buffer.hpp"
@@ -31,6 +32,7 @@ private:
     SensorsManager      sensorsManager_{};
     MidiManager         midiManager_{};
     MusicDecoder        musicDecoder_{};
+    Calibrator          calibrator_{};
 
     inline static MotorManager *motorManagerPointer_{nullptr};
 
@@ -42,12 +44,12 @@ private:
     enum class Channel : uint8_t{ None, Instrument_1, Instrument_2, Instrument_3, Chord};
     utilities::EnumMap<Channel, midi_data::Instrument> channelInstruments_{};
 
-    // utilities::EnumMap<Channel, units::midi::Note> previousNoteActive_{};
-    std::array<std::optional<units::midi::Note>, 16> previousNoteActive_{}; // DEBUG
-
 private:
     midi_command::MachineState commandState_{};
     utilities::RingBuffer<midi_command::Command, constants::system::MaxCommandsInBuffer> commandQueue_{};
+
+private:
+    // calibrator::ReferenceProfile calibrationProfile_{};
 
 public:
     MusicBox() = default;

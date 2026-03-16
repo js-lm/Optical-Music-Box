@@ -54,6 +54,8 @@ void MusicBox::initialize(){
         midiManager_.setInstrument(1, instruments::Mt32::Violin);
         midiManager_.setInstrument(2, instruments::Default::Trumpet);
         midiManager_.setInstrument(3, instruments::Mt32::Xylophone);
+
+        sensorsManager_.setReferenceProfile(calibrator_.getReferenceProfile());
     } /* DEBUG */
 }
 
@@ -74,7 +76,7 @@ void MusicBox::update(){
     default: break;
     }
 
-    DEBUG_PRINT_IF_CHANGED("State changed to %s", magic_enum::enum_name(state_));
+        DEBUG_PRINT_IF_CHANGED("State changed to %s", magic_enum::enum_name(state_));
 }
 
 void MusicBox::core1Entry(){

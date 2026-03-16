@@ -10,6 +10,6 @@ namespace constants::motor{
     constexpr units::Us MaxStepInterval{800};
     constexpr units::Us AccelerationStep{10};
 
-    constexpr units::StepsPerSecond DefaultStepRate{1.0f}; // 4
+    constexpr units::StepsPerSecond DefaultStepRate{4.0f}; // 4
 
 } // namespace constants::motor

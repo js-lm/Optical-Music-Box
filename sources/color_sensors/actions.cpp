@@ -12,7 +12,10 @@ void SensorsManager::initializeSensors(){
     
     int successCount{0};
     
-    for(physical::Channel sensorIndex{0}; sensorIndex < constants::color_sensor::TotalSensorCount; sensorIndex++){
+    for(color_sensor_data::SensorIndex sensorIndex{0}; 
+        sensorIndex < constants::color_sensor::TotalSensorCount; 
+        sensorIndex++
+    ){
         selectSensorMuxChannel(sensorIndex);
 
         writeColorSensorRegister(constants::color_sensor::Enable, constants::color_sensor::EnableValue);
@@ -23,7 +26,7 @@ void SensorsManager::initializeSensors(){
     DEBUG_PRINT("Color sensors initialized!");
 }
 
-void SensorsManager::setSensorEnabled(physical::Channel sensorIndex, bool enabled){
+void SensorsManager::setSensorEnabled(color_sensor_data::SensorIndex sensorIndex, bool enabled){
     selectSensorMuxChannel(sensorIndex);
 
     uint8_t enableValue{enabled ? constants::color_sensor::EnableValue : static_cast<uint8_t>(0x01)};
@@ -31,7 +34,10 @@ void SensorsManager::setSensorEnabled(physical::Channel sensorIndex, bool enable
 }
 
 void SensorsManager::startSampling(){
-    for(physical::Channel sensorIndex{0}; sensorIndex < constants::color_sensor::TotalSensorCount; sensorIndex++){
+    for(color_sensor_data::SensorIndex sensorIndex{0}; 
+        sensorIndex < constants::color_sensor::TotalSensorCount; 
+        sensorIndex++
+    ){
         setSensorEnabled(sensorIndex, true);
     }
 }
@@ -39,8 +45,11 @@ void SensorsManager::startSampling(){
 SensorsManager::ColorRow SensorsManager::collectSensorData(){
     // front sensors
     ColorRow colorRow{};
-    for(physical::Channel sensorIndex{0}; sensorIndex < constants::color_sensor::SensorsPerMux; sensorIndex++){
-        colorRow[sensorIndex] = getColor(readSensorRGBC(sensorIndex));
+    for(color_sensor_data::SensorIndex sensorIndex{0}; 
+        sensorIndex < constants::color_sensor::SensorsPerMux; 
+        sensorIndex++
+    ){
+        colorRow[sensorIndex] = getColor(sensorIndex, readSensorRGBC(sensorIndex));
     }
     colorRowQueue_.push(colorRow);
 
@@ -50,16 +59,32 @@ SensorsManager::ColorRow SensorsManager::collectSensorData(){
         latestColorRow = colorRowQueue_.pop();
 
         // back sensors
-        for(physical::Channel sensorIndex{constants::color_sensor::SensorsPerMux}; sensorIndex < constants::color_sensor::TotalSensorCount; sensorIndex++){
-            latestColorRow[sensorIndex] = getColor(readSensorRGBC(sensorIndex));
+        for(color_sensor_data::SensorIndex sensorIndex{constants::color_sensor::SensorsPerMux}; 
+            sensorIndex < constants::color_sensor::TotalSensorCount; 
+            sensorIndex++
+        ){
+            latestColorRow[sensorIndex] = getColor(sensorIndex, readSensorRGBC(sensorIndex));
         }
     }
 
     return latestColorRow;
 }
 
-SensorsManager::ColorReading SensorsManager::readSensorRGBC(physical::Channel sensorIndex){
-    ColorReading result{0, 0, 0, 0};
+SensorsManager::RawColorReadingRow SensorsManager::collectSensorRawReadings(){
+    RawColorReadingRow colorRow{};
+
+    for(color_sensor_data::SensorIndex sensorIndex{0}; 
+        sensorIndex < constants::color_sensor::TotalSensorCount; 
+        sensorIndex++
+    ){
+        colorRow[sensorIndex] = readSensorRGBC(sensorIndex);
+    }
+
+    return colorRow;
+}
+
+color_sensor_data::RawColorReading SensorsManager::readSensorRGBC(color_sensor_data::SensorIndex sensorIndex){
+    color_sensor_data::RawColorReading result{0, 0, 0, 0};
 
     selectSensorMuxChannel(sensorIndex);
 

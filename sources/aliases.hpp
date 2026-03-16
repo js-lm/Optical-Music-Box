@@ -51,3 +51,16 @@ namespace physical{
     using Channel       = uint8_t;
 
 } // namespace physical
+
+namespace color_sensor_data{
+
+    using SensorIndex = uint8_t;
+
+    struct RawColorReading{
+        uint16_t red;
+        uint16_t green;
+        uint16_t blue;
+        uint16_t clear;
+    };
+
+} // namespace color_sensor_data
