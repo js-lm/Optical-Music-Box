@@ -15,6 +15,17 @@ int MusicBox::run(){
 
     while(true){
         update();
+
+        // static bool initialized{false};
+        // if(!initialized){
+        //     motorManager_.initialize();
+        //     motorManager_.setTargetStepRate(2000);
+        //     motorManager_.start(true);
+        //     initialized = true;
+        // }
+
+        // motorManager_.update();
+        // sleep_ms(1);
     }
 
     return 0;
@@ -33,7 +44,8 @@ void MusicBox::initialize(){
     sensorsManager_.initialize();
     midiManager_.initialization();
     
-    motorManagerPointer_ = &motorManager_;
+    motorManagerPointer_.store(&motorManager_, std::memory_order_release);
+    multicore_reset_core1();
     multicore_launch_core1(core1Entry);
     
     DEBUG_PRINT("Music Box Initialized!");
@@ -81,8 +93,9 @@ void MusicBox::update(){
 
 void MusicBox::core1Entry(){
     while(true){
-        if(motorManagerPointer_) motorManagerPointer_->update();
-
+        if(auto *motorManagerPointer{motorManagerPointer_.load(std::memory_order_acquire)}){
+            motorManagerPointer->update();
+        }
         tight_loop_contents();
     }
 }

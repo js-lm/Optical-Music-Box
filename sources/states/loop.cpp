@@ -9,6 +9,10 @@ void MusicBox::updateSeekState(){
 
     if(lightSensorManager_.hasArrived()){
         motorManager_.stop();
+
+        // TODO: don't use sleep
+        sleep_ms(constants::color_sensor::SeekStateStopToSamplingSettleDelay);
+
         sensorsManager_.startSampling();
         nextState();
     }
@@ -16,8 +20,7 @@ void MusicBox::updateSeekState(){
 
 void MusicBox::updateWaitState(){
     // DEBUG
-    // if(timeSinceLastStep_ > units::Ms2Us(constants::runtime::QueueTick)){
-    if(timeSinceLastStep_ > units::Ms2Us(1000)){
+    if(timeSinceLastStep_ > units::Ms2Us(80)){
         timeSinceLastStep_ = 0;
 
         while(!commandQueue_.isEmpty()){
@@ -34,29 +37,28 @@ void MusicBox::updateProcessState(){
     //     beginning:
 
     //     using namespace constants::color_sensor;
+    //     const auto colorRawRow{sensorsManager_.collectSensorRawReadings()};
     //     const auto colorRow{sensorsManager_.collectSensorData()};
 
     //     DEBUG_PRINT("\n");
 
     //     for(int sensorIndex{0}; sensorIndex < 16; sensorIndex++){
-    //         // DEBUG_PRINT("[%i:%i] R:%i G:%i B:%i C:%i", 
-    //         //     sensorIndex,
-    //         //     SensorIndexMap[sensorIndex],
-    //         //     static_cast<int>(colorRow[sensorIndex].red),
-    //         //     static_cast<int>(colorRow[sensorIndex].green),
-    //         //     static_cast<int>(colorRow[sensorIndex].blue),
-    //         //     static_cast<int>(colorRow[sensorIndex].clear)
-    //         // );
-
-    //         DEBUG_PRINT("sensor:%i color:%i ", 
+    //         DEBUG_PRINT("[%i:%i] R:%i G:%i B:%i C:%i", 
     //             sensorIndex,
-    //             static_cast<int>(colorRow[SensorIndexMap[sensorIndex]])
+    //             SensorIndexMap[sensorIndex],
+    //             static_cast<int>(colorRawRow[sensorIndex].red),
+    //             static_cast<int>(colorRawRow[sensorIndex].green),
+    //             static_cast<int>(colorRawRow[sensorIndex].blue),
+    //             static_cast<int>(colorRawRow[sensorIndex].clear)
     //         );
+
+    //         // DEBUG_PRINT("sensor:%i color:%i ", 
+    //         //     sensorIndex,
+    //         //     static_cast<int>(colorRow[SensorIndexMap[sensorIndex]])
+    //         // );
     //     }
 
-
-
-    //     DEBUG_SLEEP_MS(1000);
+    //     DEBUG_SLEEP_MS(100);
 
     //     goto beginning;
     // } /* DEBUG */

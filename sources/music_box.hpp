@@ -10,6 +10,8 @@
 #include "utilities/enum_map.hpp"
 #include "utilities/ring_buffer.hpp"
 
+#include <atomic>
+
 class MusicBox{
 private:
     enum class State : uint8_t{
@@ -34,7 +36,7 @@ private:
     MusicDecoder        musicDecoder_{};
     Calibrator          calibrator_{};
 
-    inline static MotorManager *motorManagerPointer_{nullptr};
+    inline static std::atomic<MotorManager*> motorManagerPointer_{nullptr};
 
 private:
     units::TimestampUs lastUpdateTime_{0};

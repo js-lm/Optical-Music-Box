@@ -27,6 +27,10 @@ namespace constants::color_sensor{
     // delay
     constexpr units::Us MinimumReadInterval{50000};
 
+    // 25 seems to be the sweet spot, it reduces the error by 91% and is still very snappy
+    // for future reference, the error increases again once it goes above around 35 (idk why)
+    constexpr units::Ms SeekStateStopToSamplingSettleDelay{25};
+
     // mux
     constexpr uint8_t MuxDisableMask{0x00};
 
