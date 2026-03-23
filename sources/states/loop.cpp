@@ -9,19 +9,22 @@ void MusicBox::updateSeekState(){
 
     if(lightSensorManager_.hasArrived()){
         motorManager_.stop();
+        motorStopTimestamp_ = time_us_64();
 
-        // TODO: don't use sleep
-        sleep_ms(constants::color_sensor::SeekStateStopToSamplingSettleDelay);
+        nextState();
+    }
+}
 
+void MusicBox::updateSamplingState(){
+    const units::TimestampUs currentTime{time_us_64()};
+    if(currentTime - motorStopTimestamp_ >= constants::color_sensor::SeekStateStopToSamplingSettleDelay){
         sensorsManager_.startSampling();
         nextState();
     }
 }
 
 void MusicBox::updateWaitState(){
-    // DEBUG
-    if(timeSinceLastStep_ > units::Ms2Us(80)){
-        timeSinceLastStep_ = 0;
+    if(sensorsManager_.isSamplingReady()){
 
         while(!commandQueue_.isEmpty()){
             executeNextBufferedCommand();
@@ -144,6 +147,7 @@ void MusicBox::updateProcessState(){
     //     // }
     // } /* DEBUG */
 
+    sensorsManager_.stopSampling();
     lightSensorManager_.next();
     motorManager_.start();
 

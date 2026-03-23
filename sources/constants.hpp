@@ -35,7 +35,7 @@ namespace constants{
     } // namespace adc
 
     namespace i2c{
-        constexpr uint32_t Frequency{100000}; // 100 kHz
+        constexpr uint32_t Frequency{400000}; // 400 kHz
     } // namespace i2c
 
     namespace i2c_address{

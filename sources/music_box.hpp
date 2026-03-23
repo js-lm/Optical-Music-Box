@@ -24,6 +24,7 @@ private:
         Configure_Instruments,
 
         Seek,
+        Sampling,
         Wait,
         Process
     } state_;
@@ -41,6 +42,7 @@ private:
 private:
     units::TimestampUs lastUpdateTime_{0};
     units::Us timeSinceLastStep_{0};
+    units::TimestampUs motorStopTimestamp_{0};
 
 private:
     enum class Channel : uint8_t{ None, Instrument_1, Instrument_2, Instrument_3, Chord};
@@ -76,8 +78,8 @@ private:
     void updateConfigureMetadataState();
     void updateConfigureInstrumentsState();
     
-    void updatePreparationState();
     void updateSeekState();
+    void updateSamplingState();
     void updateWaitState();
     void updateProcessState();
 

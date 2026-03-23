@@ -18,10 +18,13 @@ void SensorsManager::initializeSensors(){
     ){
         selectSensorMuxChannel(sensorIndex);
 
-        writeColorSensorRegister(constants::color_sensor::Enable, constants::color_sensor::EnableValue);
+        writeColorSensorRegister(constants::color_sensor::Enable, constants::color_sensor::PowerOnOnlyValue);
         writeColorSensorRegister(constants::color_sensor::IntegrationTime, constants::color_sensor::IntegrationTimeValue);
         writeColorSensorRegister(constants::color_sensor::Control, constants::color_sensor::GainValue);
     }
+
+    isSamplingActive_ = false;
+    samplingStartTimestamp_ = time_us_64();
 
     DEBUG_PRINT("Color sensors initialized!");
 }
@@ -29,7 +32,7 @@ void SensorsManager::initializeSensors(){
 void SensorsManager::setSensorEnabled(color_sensor_data::SensorIndex sensorIndex, bool enabled){
     selectSensorMuxChannel(sensorIndex);
 
-    uint8_t enableValue{enabled ? constants::color_sensor::EnableValue : static_cast<uint8_t>(0x01)};
+    uint8_t enableValue{enabled ? constants::color_sensor::EnableValue : constants::color_sensor::PowerOnOnlyValue};
     writeColorSensorRegister(constants::color_sensor::Enable, enableValue);
 }
 
@@ -40,6 +43,32 @@ void SensorsManager::startSampling(){
     ){
         setSensorEnabled(sensorIndex, true);
     }
+
+    samplingStartTimestamp_ = time_us_64();
+    isSamplingActive_ = true;
+}
+
+void SensorsManager::stopSampling(){
+    for(color_sensor_data::SensorIndex sensorIndex{0}; 
+        sensorIndex < constants::color_sensor::TotalSensorCount; 
+        sensorIndex++
+    ){
+        setSensorEnabled(sensorIndex, false);
+    }
+
+    isSamplingActive_ = false;
+}
+
+bool SensorsManager::isSamplingReady() const{
+/* 
+7.5 notes per second (max speed)
+*/
+    if(!isSamplingActive_) return false;
+
+    // constexpr units::Us samplingWarmupDelay{integrationTime + constants::color_sensor::SeekStateStopToSamplingSettleDelay};
+
+    const units::TimestampUs currentTime{time_us_64()};
+    return currentTime - samplingStartTimestamp_ >= constants::color_sensor::TotalIntegrationTime;
 }
 
 SensorsManager::ColorRow SensorsManager::collectSensorData(){

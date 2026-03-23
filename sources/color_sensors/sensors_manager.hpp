@@ -33,6 +33,9 @@ public:
 
 private:
     units::TimestampUs lastReadTime_{0};
+    units::TimestampUs samplingStartTimestamp_{0};
+    bool isSamplingActive_{false};
+    
     std::optional<calibrator::ReferenceProfile> referenceProfile_{};
 
     utilities::RingBuffer<ColorRow, constants::color_sensor::FrontToBackDistance + 1> colorRowQueue_{};
@@ -43,8 +46,10 @@ public:
 
     void initialize();
 
-    void startSampling();
     ColorRow collectSensorData();
+    void startSampling();
+    void stopSampling();
+    bool isSamplingReady() const;
 
 public:
     RawColorReadingRow collectSensorRawReadings();

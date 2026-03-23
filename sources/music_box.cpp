@@ -83,6 +83,7 @@ void MusicBox::update(){
 
     case State::Seek:       updateSeekState(); break;
     case State::Wait:       updateWaitState(); break;
+    case State::Sampling:   updateSamplingState(); break;
     case State::Process:    updateProcessState(); break;
 
     default: break;
@@ -112,9 +113,9 @@ void MusicBox::nextState(){
 
 void MusicBox::updateTimers(){
     const units::TimestampUs currentTime{time_us_64()};
-    const units::Us deltaTime{currentTime - static_cast<units::Us>(lastUpdateTime_)};
+    // const units::Us deltaTime{currentTime - static_cast<units::Us>(lastUpdateTime_)};
     
-    timeSinceLastStep_ += deltaTime;
+    // timeSinceLastStep_ += deltaTime;
     
     lastUpdateTime_ = currentTime;
 }
