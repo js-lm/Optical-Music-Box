@@ -37,7 +37,7 @@ private:
     MusicDecoder        musicDecoder_{};
     Calibrator          calibrator_{};
 
-    inline static std::atomic<MotorManager*> motorManagerPointer_{nullptr};
+    // inline static std::atomic<MotorManager*> motorManagerPointer_{nullptr};
 
 private:
     units::TimestampUs lastUpdateTime_{0};
@@ -56,10 +56,13 @@ private:
     // calibrator::ReferenceProfile calibrationProfile_{};
 
 public:
-    MusicBox() = default;
-    ~MusicBox() = default;
+    static MusicBox &getInstance();
 
     int run();
+
+private:
+    MusicBox() = default;
+    ~MusicBox() = default;
 
 private:
     void initialize();

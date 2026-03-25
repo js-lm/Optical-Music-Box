@@ -8,6 +8,11 @@
 
 #include "debug_utilities.hpp"
 
+MusicBox &MusicBox::getInstance(){
+    static MusicBox instance{}; 
+    return instance;
+}
+
 int MusicBox::run(){
     DEBUG_SLEEP_MS(2000);
 
@@ -15,17 +20,6 @@ int MusicBox::run(){
 
     while(true){
         update();
-
-        // static bool initialized{false};
-        // if(!initialized){
-        //     motorManager_.initialize();
-        //     motorManager_.setTargetStepRate(2000);
-        //     motorManager_.start(true);
-        //     initialized = true;
-        // }
-
-        // motorManager_.update();
-        // sleep_ms(1);
     }
 
     return 0;
@@ -44,7 +38,6 @@ void MusicBox::initialize(){
     sensorsManager_.initialize();
     midiManager_.initialization();
     
-    motorManagerPointer_.store(&motorManager_, std::memory_order_release);
     multicore_reset_core1();
     multicore_launch_core1(core1Entry);
     
@@ -89,14 +82,19 @@ void MusicBox::update(){
     default: break;
     }
 
-        DEBUG_PRINT_IF_CHANGED("State changed to %s", magic_enum::enum_name(state_));
+    const auto stateName{magic_enum::enum_name(state_)};
+    DEBUG_PRINT_IF_CHANGED(
+        "State changed to %.*s",
+        static_cast<int>(stateName.size()),
+        stateName.data()
+    );
 }
 
 void MusicBox::core1Entry(){
+    MotorManager &motorManager{MusicBox::getInstance().motorManager_};
+
     while(true){
-        if(auto *motorManagerPointer{motorManagerPointer_.load(std::memory_order_acquire)}){
-            motorManagerPointer->update();
-        }
+        motorManager.update();
         tight_loop_contents();
     }
 }
