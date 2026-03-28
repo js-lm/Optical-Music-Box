@@ -77,7 +77,7 @@ void MusicBox::update(){
     case State::Seek:       updateSeekState(); break;
     case State::Wait:       updateWaitState(); break;
     case State::Sampling:   updateSamplingState(); break;
-    case State::Process:    updateProcessState(); break;
+    case State::Process:    DEBUG_updateProcessState(); break;
 
     default: break;
     }

@@ -35,117 +35,122 @@ void MusicBox::updateWaitState(){
 }
 
 void MusicBox::updateProcessState(){
+    const auto colorRow{sensorsManager_.collectSensorData()};
 
-    // /* DEBUG */ {
-    //     beginning:
+    constexpr auto numberOfInstrumentCount{constants::decoder::NumberOfInstrumentChannel};
 
-    //     using namespace constants::color_sensor;
-    //     const auto colorRawRow{sensorsManager_.collectSensorRawReadings()};
-    //     const auto colorRow{sensorsManager_.collectSensorData()};
+    using namespace constants::color_sensor;
+    for(uint8_t instrumentChannel{1}; instrumentChannel <= constants::decoder::NumberOfInstrumentChannel; instrumentChannel++){
+        MusicDecoder::Base5<numberOfInstrumentCount> base5values{};
 
-    //     DEBUG_PRINT("\n");
+        for(int sensorIndex{(instrumentChannel - 1) * numberOfInstrumentCount}, digitIndex{0}; sensorIndex < instrumentChannel * numberOfInstrumentCount; sensorIndex++, digitIndex++){
+            // DEBUG_PRINT("sensor:%i-%i ", static_cast<int>(colorRow[SensorIndexMap[sensorIndex]]));
 
-    //     for(int sensorIndex{0}; sensorIndex < 16; sensorIndex++){
-    //         DEBUG_PRINT("[%i:%i] R:%i G:%i B:%i C:%i", 
-    //             sensorIndex,
-    //             SensorIndexMap[sensorIndex],
-    //             static_cast<int>(colorRawRow[sensorIndex].red),
-    //             static_cast<int>(colorRawRow[sensorIndex].green),
-    //             static_cast<int>(colorRawRow[sensorIndex].blue),
-    //             static_cast<int>(colorRawRow[sensorIndex].clear)
-    //         );
-
-    //         // DEBUG_PRINT("sensor:%i color:%i ", 
-    //         //     sensorIndex,
-    //         //     static_cast<int>(colorRow[SensorIndexMap[sensorIndex]])
-    //         // );
-    //     }
-
-    //     DEBUG_SLEEP_MS(100);
-
-    //     goto beginning;
-    // } /* DEBUG */
-
-
-    /* DEBUG */ {
-        const auto colorRow{sensorsManager_.collectSensorData()};
-
-        using namespace constants::color_sensor;
-        for(uint8_t i{0}; i < 16; i++){
             DEBUG_PRINT("sensor:%i color:%i ", 
-                i, static_cast<int>(colorRow[SensorIndexMap[i]])
+                sensorIndex,
+                static_cast<int>(colorRow[SensorIndexMap[sensorIndex]])
+            );
+
+            const auto currentColor{colorRow[SensorIndexMap[sensorIndex]]};
+
+            base5values[digitIndex] = static_cast<MusicDecoder::Base5Value>(currentColor); // TODO: This is assuming they are mapped 1:1. Not the safest have to say
+        }
+
+        std::optional<midi_command::Command> command{
+            musicDecoder_.decode(
+                base5values,
+                instrumentChannel - 1
+            )
+        };
+
+        if(command && !commandQueue_.isFull()){
+            commandQueue_.push(std::move(*command));
+        }
+    }
+
+    sensorsManager_.stopSampling();
+    lightSensorManager_.next();
+    motorManager_.start();
+
+    nextState();
+}
+
+void MusicBox::DEBUG_bitFlipTester(){
+    using namespace constants::color_sensor;
+
+    constexpr units::Ms spinDuration{100};
+    constexpr units::Us settleDurationUs{SeekStateStopToSamplingSettleDelay};
+
+    while(true){
+        motorManager_.start();
+        DEBUG_SLEEP_MS(spinDuration);
+
+        motorManager_.stop();
+        sleep_us(settleDurationUs);
+
+        sensorsManager_.startSampling();
+        while(!sensorsManager_.isSamplingReady()){
+            tight_loop_contents();
+        }
+
+        const auto colorRawRow{sensorsManager_.DEBUG_collectSensorRawReadings()};
+
+        for(int sensorIndex{0}; sensorIndex < TotalSensorCount; sensorIndex++){
+            DEBUG_PRINT("[%i:%i] r:%i g:%i b:%i c:%i",
+                sensorIndex,
+                SensorIndexMap[sensorIndex],
+                static_cast<int>(colorRawRow[sensorIndex].red),
+                static_cast<int>(colorRawRow[sensorIndex].green),
+                static_cast<int>(colorRawRow[sensorIndex].blue),
+                static_cast<int>(colorRawRow[sensorIndex].clear)
             );
         }
-    } /* DEBUG */
 
+        sensorsManager_.stopSampling();
+    }
+}
 
+void MusicBox::DEBUG_updateProcessState(){
+    // DEBUG_bitFlipTester();
 
-    // /* DEBUG */ {
-    //     const auto colorRow{sensorsManager_.collectSensorData()};
+    const auto completeColorDataRow{sensorsManager_.DEBUG_getCompleteColorDataRow()};
 
-    //     using namespace constants::color_sensor;
-    //     for(uint8_t instrumentChannel{1}; instrumentChannel <= constants::decoder::NumberOfInstrumentChannel; instrumentChannel++){
-    //         MusicDecoder::Base5<3> base5values{};
+    DEBUG_PRINT(
+        "checksum valid:%i residue:%i correction:%i",
+        static_cast<int>(completeColorDataRow.isChecksumValid),
+        static_cast<int>(completeColorDataRow.checksumResidue),
+        static_cast<int>(completeColorDataRow.correctionApplied)
+    );
 
-    //         for(int sensorIndex{(instrumentChannel - 1) * 3}, digitIndex{0}; sensorIndex < instrumentChannel * 3; sensorIndex++, digitIndex++){
-    //             // DEBUG_PRINT("sensor:%i-%i ", static_cast<int>(colorRow[SensorIndexMap[sensorIndex]]));
+    if(completeColorDataRow.correctionApplied){
+        DEBUG_PRINT(
+            "corrected sensor:%i from:%i(cost:%i) to:%i(cost:%i)",
+            static_cast<int>(completeColorDataRow.correctedSensorIndex),
+            static_cast<int>(completeColorDataRow.correctedFromColor),
+            static_cast<int>(completeColorDataRow.correctedFromCost),
+            static_cast<int>(completeColorDataRow.correctedToColor),
+            static_cast<int>(completeColorDataRow.correctedToCost)
+        );
+    }
 
-    //             DEBUG_PRINT("sensor:%i color:%i ", 
-    //                 sensorIndex,
-    //                 static_cast<int>(colorRow[SensorIndexMap[sensorIndex]])
-    //             );
+    using namespace constants::color_sensor;
+    for(uint8_t sensorPrintIndex{0}; sensorPrintIndex < TotalSensorCount; sensorPrintIndex++){
+        const auto mappedSensorIndex{SensorIndexMap[sensorPrintIndex]};
 
-    //             const auto currentColor{colorRow[SensorIndexMap[sensorIndex]]};
+        const auto sensorData{completeColorDataRow.sensorDataRow[mappedSensorIndex]};
+        const auto finalColor{completeColorDataRow.finalColorRow[mappedSensorIndex]};
 
-    //             base5values[digitIndex] = static_cast<MusicDecoder::Base5Value>(currentColor); // TODO: This is assuming they are mapped 1:1. Not the safest have to say
-    //         }
-
-    //         std::optional<midi_command::Command> command{
-    //             musicDecoder_.decode(
-    //                 base5values,
-    //                 instrumentChannel - 1
-    //             )
-    //         };
-
-    //         if(command && !commandQueue_.isFull()){
-    //             commandQueue_.push(std::move(*command));
-    //         }
-    //     }
-
-    //     // using namespace constants::color_sensor;
-    //     // for(int sensorIndex{0}; sensorIndex < 9; sensorIndex++){
-    //     //     // DEBUG_PRINT("%i ", static_cast<int>(colorRow[SensorIndexMap[sensorIndex]]));
-
-    //     //     // const units::midi::Note note{static_cast<units::midi::Note>(60 + sensorIndex)};
-    //     //     // const auto currentColor{colorRow[SensorIndexMap[sensorIndex]]};
-    //     //     // const auto colorIndex{static_cast<uint8_t>(currentColor)};
-    //     //     // const bool isSensorActive{colorIndex != 0};
-
-    //     //     std::optional<midi_command::Command> command{
-    //     //         musicDecoder_.decode(
-    //     //             MusicDecoder::InstrumentInstruction{
-
-    //     //             }
-    //     //         )
-    //     //     };
-
-    //     //     // if(!previousNoteActive_[sensorIndex]){
-    //     //     //     command = midi_command::QueuedNoteOff{0, note};
-    //     //     //     previousNoteActive_[sensorIndex] = std::nullopt;
-    //     //     // }else if(true){
-    //     //     //     command = midi_command::QueuedNoteOn{
-    //     //     //         static_cast<uint8_t>(colorIndex - 1),
-    //     //     //         note,
-    //     //     //         constants::runtime::DefaultNoteVelocity
-    //     //     //     };
-    //     //     //     previousNoteActive_[sensorIndex] = true;
-    //     //     // }
-
-    //     //     if(command){
-    //     //         if(!commandQueue_.isFull()) commandQueue_.push(std::move(*command));
-    //     //     }
-    //     // }
-    // } /* DEBUG */
+        DEBUG_PRINT(
+            "sensor:%i detected:%i final:%i r:%i g:%i b:%i c:%i",
+            static_cast<int>(sensorPrintIndex),
+            static_cast<int>(sensorData.detectedColor),
+            static_cast<int>(finalColor),
+            static_cast<int>(sensorData.rawColorReading.red),
+            static_cast<int>(sensorData.rawColorReading.green),
+            static_cast<int>(sensorData.rawColorReading.blue),
+            static_cast<int>(sensorData.rawColorReading.clear)
+        );
+    }
 
     sensorsManager_.stopSampling();
     lightSensorManager_.next();

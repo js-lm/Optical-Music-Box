@@ -23,7 +23,7 @@
 | 6 | **Instrument 3** Opcode |
 | 7 - 8 | **Instrument 3** Immediate |
 
-### Index 9 - 15: Chord
+### Index 9 - 14: Chord
 
 | Index | Field |
 | --- | --- |
@@ -31,7 +31,12 @@
 | 11 | Triad Quality |
 | 12 - 13 | Root Note |
 | 14 | Octave |
-| 15 | Command Digit |
+
+### Index 15: Checksum
+
+| Index | Field |
+| --- | --- |
+| 15 | Checksum |
 
 ---
 
@@ -115,3 +120,15 @@ Special: `4`: Mute
 | `1` | 1 |
 | `2` | 5 |
 | `3` | 7 |
+
+## Checksum Implementation
+
+Format (Base 5): `[Checksum: 1 digit]`
+
+### Calculation 
+
+`Checksum = (5 - (sum(data_0_to_14) mod 5)) mod 5`
+
+### Validation
+
+`sum(data_0_to_15) mod 5 == 0`

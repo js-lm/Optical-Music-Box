@@ -2,6 +2,7 @@
 
 #include "constants.hpp"
 #include "debug_utilities.hpp"
+#include "error_bias.hpp"
 
 #include <hardware/i2c.h>
 #include <pico/stdlib.h>
@@ -73,34 +74,37 @@ bool SensorsManager::isSamplingReady() const{
 
 SensorsManager::ColorRow SensorsManager::collectSensorData(){
     // front sensors
-    ColorRow colorRow{};
+    ColorDataRow colorDataRow{};
     for(color_sensor_data::SensorIndex sensorIndex{0}; 
         sensorIndex < constants::color_sensor::SensorsPerMux; 
         sensorIndex++
     ){
-        colorRow[sensorIndex] = getColor(sensorIndex, readSensorRGBC(sensorIndex));
+        const auto colorData{getColorData(sensorIndex, readSensorRGBC(sensorIndex))};
+        colorDataRow.colorRow[sensorIndex] = colorData.mostLikelyColor;
+        colorDataRow.costRow[sensorIndex] = colorData.costs;
     }
-    colorRowQueue_.push(colorRow);
+    colorDataRowQueue_.push(colorDataRow);
 
-    ColorRow latestColorRow{};
+    if(colorDataRowQueue_.size() <= constants::color_sensor::FrontToBackDistance) return {};
 
-    if(colorRowQueue_.size() > constants::color_sensor::FrontToBackDistance){
-        latestColorRow = colorRowQueue_.pop();
+    ColorDataRow latestColorDataRow{colorDataRowQueue_.pop()};
 
-        // back sensors
-        for(color_sensor_data::SensorIndex sensorIndex{constants::color_sensor::SensorsPerMux}; 
-            sensorIndex < constants::color_sensor::TotalSensorCount; 
-            sensorIndex++
-        ){
-            latestColorRow[sensorIndex] = getColor(sensorIndex, readSensorRGBC(sensorIndex));
-        }
+    // back sensors
+    for(color_sensor_data::SensorIndex sensorIndex{constants::color_sensor::SensorsPerMux}; 
+        sensorIndex < constants::color_sensor::TotalSensorCount; 
+        sensorIndex++
+    ){
+        const auto colorData{getColorData(sensorIndex, readSensorRGBC(sensorIndex))};
+        latestColorDataRow.colorRow[sensorIndex] = colorData.mostLikelyColor;
+        latestColorDataRow.costRow[sensorIndex] = colorData.costs;
     }
 
-    return latestColorRow;
+    auto checksumResidue{checksum(latestColorDataRow)};
+    return checksumResidue == 0 ? latestColorDataRow.colorRow : trySoftCorrection(latestColorDataRow, checksumResidue);
 }
 
-SensorsManager::RawColorReadingRow SensorsManager::collectSensorRawReadings(){
-    RawColorReadingRow colorRow{};
+SensorsManager::DEBUG_RawColorReadingRow SensorsManager::DEBUG_collectSensorRawReadings(){
+    DEBUG_RawColorReadingRow colorRow{};
 
     for(color_sensor_data::SensorIndex sensorIndex{0}; 
         sensorIndex < constants::color_sensor::TotalSensorCount; 
@@ -110,6 +114,98 @@ SensorsManager::RawColorReadingRow SensorsManager::collectSensorRawReadings(){
     }
 
     return colorRow;
+}
+
+SensorsManager::DEBUG_CompleteColorDataRow SensorsManager::DEBUG_getCompleteColorDataRow(){
+    DEBUG_CompleteColorDataRow debugRow{};
+
+    struct DebugFrontFrame{
+        ColorDataRow colorDataRow{};
+        DEBUG_RawColorReadingRow rawColorReadingRow{};
+    };
+
+    static utilities::RingBuffer<DebugFrontFrame, constants::color_sensor::FrontToBackDistance + 1> queuedFrontFrames{};
+
+    DebugFrontFrame frontFrame{};
+
+    // for(color_sensor_data::SensorIndex sensorIndex{constants::color_sensor::SensorsPerMux}; 
+    //     sensorIndex --> 0;
+    // ){
+
+    for(color_sensor_data::SensorIndex sensorIndex{0}; 
+        sensorIndex < constants::color_sensor::SensorsPerMux; 
+        sensorIndex++
+    ){
+        const auto rawColorReading{readSensorRGBC(sensorIndex)};
+        const auto colorData{getColorData(sensorIndex, rawColorReading)};
+
+        frontFrame.colorDataRow.colorRow[sensorIndex] = colorData.mostLikelyColor;
+        frontFrame.colorDataRow.costRow[sensorIndex] = colorData.costs;
+        frontFrame.rawColorReadingRow[sensorIndex] = rawColorReading;
+    }
+
+    queuedFrontFrames.push(frontFrame);
+
+    if(queuedFrontFrames.size() <= constants::color_sensor::FrontToBackDistance){
+        return debugRow;
+    }
+
+    const auto alignedFrontFrame{queuedFrontFrames.pop()};
+    ColorDataRow colorDataRow{alignedFrontFrame.colorDataRow};
+
+    // for(color_sensor_data::SensorIndex sensorIndex{constants::color_sensor::SensorsPerMux}; 
+    //     sensorIndex --> 0;
+    // ){
+    for(color_sensor_data::SensorIndex sensorIndex{0}; 
+        sensorIndex < constants::color_sensor::SensorsPerMux; 
+        sensorIndex++
+    ){
+        debugRow.sensorDataRow[sensorIndex].rawColorReading = alignedFrontFrame.rawColorReadingRow[sensorIndex];
+        debugRow.sensorDataRow[sensorIndex].detectedColor = colorDataRow.colorRow[sensorIndex];
+    }
+
+    for(color_sensor_data::SensorIndex sensorIndex{constants::color_sensor::SensorsPerMux}; 
+        sensorIndex < constants::color_sensor::TotalSensorCount; 
+        sensorIndex++
+    ){
+        const auto rawColorReading{readSensorRGBC(sensorIndex)};
+        const auto colorData{getColorData(sensorIndex, rawColorReading)};
+
+        colorDataRow.colorRow[sensorIndex] = colorData.mostLikelyColor;
+        colorDataRow.costRow[sensorIndex] = colorData.costs;
+
+        debugRow.sensorDataRow[sensorIndex].rawColorReading = rawColorReading;
+        debugRow.sensorDataRow[sensorIndex].detectedColor = colorData.mostLikelyColor;
+    }
+
+    debugRow.finalColorRow = colorDataRow.colorRow;
+
+    debugRow.checksumResidue = checksum(colorDataRow);
+    debugRow.isChecksumValid = debugRow.checksumResidue == 0;
+
+    if(debugRow.isChecksumValid) return debugRow;
+
+    debugRow.finalColorRow = trySoftCorrection(colorDataRow, debugRow.checksumResidue);
+
+    for(color_sensor_data::SensorIndex sensorIndex{0}; 
+        sensorIndex < constants::color_sensor::TotalSensorCount; 
+        sensorIndex++
+    ){
+        const auto originalColor{colorDataRow.colorRow[sensorIndex]};
+        const auto correctedColor{debugRow.finalColorRow[sensorIndex]};
+
+        if(originalColor == correctedColor) continue;
+
+        debugRow.correctionApplied = true;
+        debugRow.correctedSensorIndex = sensorIndex;
+        debugRow.correctedFromColor = originalColor;
+        debugRow.correctedToColor = correctedColor;
+        debugRow.correctedFromCost = colorDataRow.costRow[sensorIndex][originalColor];
+        debugRow.correctedToCost = colorDataRow.costRow[sensorIndex][correctedColor];
+        break;
+    }
+
+    return debugRow;
 }
 
 color_sensor_data::RawColorReading SensorsManager::readSensorRGBC(color_sensor_data::SensorIndex sensorIndex){

@@ -89,5 +89,6 @@ private:
     void executeNextBufferedCommand();
 
 private:
-    constexpr Channel color2Channel(SensorsManager::Color color) const;
+    void DEBUG_bitFlipTester();
+    void DEBUG_updateProcessState();
 };

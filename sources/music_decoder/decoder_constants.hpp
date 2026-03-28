@@ -11,4 +11,6 @@ namespace constants::decoder{
 
     constexpr uint8_t MaximumNumberOfBase5Digit{14};
 
+    constexpr uint8_t Radix{5};
+
 } // namespace constants::decoder
